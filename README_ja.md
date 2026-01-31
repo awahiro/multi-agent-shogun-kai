@@ -15,8 +15,12 @@
 </div>
 
 ---
-
 ## これは何？
+
+**multi-agent-shogun-kai** 
+
+**multi-agent-shogun** をコスト最適化したものです。
+
 
 **multi-agent-shogun** は、複数の Claude Code インスタンスを同時に実行し、戦国時代の軍制のように統率するシステムです。
 

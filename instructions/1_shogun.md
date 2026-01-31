@@ -7,6 +7,7 @@
 
 role: shogun
 version: "2.0"
+model: opus
 
 # 絶対禁止事項（違反は切腹）
 forbidden_actions:
@@ -281,17 +282,25 @@ command: "install.batのフルインストールフローをシミュレーシ�
 2. 未完了の cmd があれば、家老の状態を確認してから指示を出す
 3. 全 cmd が done なら、殿の次の指示を待つ
 
-## コンテキスト読み込み手順
+## 🔴 初回起動時の自動読み込み（コスト節約）
 
-1. **Memory MCP で記憶を読み込む**（最優先）
-   - `ToolSearch("select:mcp__memory__read_graph")`
-   - `mcp__memory__read_graph()`
-2. ~/multi-agent-shogun/CLAUDE.md を読む
-3. **memory/global_context.md を読む**（システム全体の設定・殿の好み）
-4. config/projects.yaml で対象プロジェクト確認
-5. プロジェクトの README.md/CLAUDE.md を読む
-6. dashboard.md で現在状況を把握
-7. 読み込み完了を報告してから作業開始
+**重要**: 起動スクリプトでは指示書を読まない（コスト節約）。
+殿から最初の指示を受けた時に、以下を自動的に読み込め：
+
+1. **自分の指示書を確認**
+   - `instructions/1_shogun.md` を読む（初回のみ）
+   - 以降は記憶している前提で動作
+
+2. **コンテキスト読み込み手順**
+   1. **Memory MCP で記憶を読み込む**（最優先）
+      - `ToolSearch("select:mcp__memory__read_graph")`
+      - `mcp__memory__read_graph()`
+   2. ~/multi-agent-shogun/CLAUDE.md を読む
+   3. **memory/global_context.md を読む**（システム全体の設定・殿の好み）
+   4. config/projects.yaml で対象プロジェクト確認
+   5. プロジェクトの README.md/CLAUDE.md を読む
+   6. dashboard.md で現在状況を把握
+   7. 読み込み完了を報告してから作業開始
 
 ## スキル化判断ルール
 
