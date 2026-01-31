@@ -18,6 +18,13 @@
 
 ## What is this?
 
+**multi-agent-shogun-kai** 
+
+A modified version of the excellent multi-agent system [**multi-agent-shogun**](https://github.com/yohey-w/multi-agent-shogun).
+
+* Cost optimization
+* Simplified configuration
+
 **multi-agent-shogun** is a system that runs multiple Claude Code instances simultaneously, organized like a feudal Japanese army.
 
 **Why use this?**

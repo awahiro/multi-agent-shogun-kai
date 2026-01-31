@@ -2,7 +2,7 @@
 
 <div align="center">
 
-**Claude Code マルチエージェント統率システム**
+**Claude Code マルチエージェント統率システム 改**
 
 *コマンド1つで、8体のAIエージェントが並列稼働*
 
@@ -19,8 +19,12 @@
 
 **multi-agent-shogun-kai** 
 
-**multi-agent-shogun** をコスト最適化したものです。
+優れたマルチエージェントシステムである[**multi-agent-shogun**](https://github.com/yohey-w/multi-agent-shogun) を改造したものです。
 
+* コスト最適化
+* 構成の簡略化
+  
+を行っています。
 
 **multi-agent-shogun** は、複数の Claude Code インスタンスを同時に実行し、戦国時代の軍制のように統率するシステムです。
 
