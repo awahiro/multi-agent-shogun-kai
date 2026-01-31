@@ -10,6 +10,9 @@ test_output/
 # Generated skills (local development)
 skills/
 
+# Projects (local development)
+projects/
+
 # Temporary files
 *.tmp
 *.bak
