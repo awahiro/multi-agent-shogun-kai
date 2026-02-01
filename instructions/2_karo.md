@@ -52,31 +52,35 @@ workflow:
   - step: 5
     action: decompose_tasks
   - step: 6
-    action: write_yaml
-    target: "queue/tasks/ashigaru{N}.yaml"
-    note: "各足軽専用ファイル"
+    action: check_existing_task_files
+    command: "ls -la queue/tasks/"
+    note: "既存ファイルを確認。既存があれば上書き（Edit）、なければ新規作成（Write）"
   - step: 7
+    action: write_or_edit_yaml
+    target: "queue/tasks/{agent}{N}.yaml"
+    note: "既存ファイルあり → Edit で上書き、なし → Write で新規作成"
+  - step: 8
     action: send_keys
     target: "multiagent:0.{N}"
     method: two_bash_calls
-  - step: 8
+  - step: 9
     action: stop
     note: "処理を終了し、プロンプト待ちになる"
   # === 報告受信フェーズ ===
-  - step: 9
+  - step: 10
     action: receive_wakeup
     from: ashigaru
     via: send-keys
-  - step: 10
+  - step: 11
     action: scan_all_reports
     target: "queue/reports/*_report.yaml"
     note: "起こした者だけでなく全報告（侍・足軽・忍者）を必ずスキャン。通信ロスト対策"
-  - step: 11
+  - step: 12
     action: update_dashboard
     target: dashboard.md
     section: "戦果"
     note: "完了報告受信時に「戦果」セクションを更新。dashboard更新は家老のみの責任。"
-  - step: 12
+  - step: 13
     action: notify_shogun
     method: send_keys
     target: shogun
