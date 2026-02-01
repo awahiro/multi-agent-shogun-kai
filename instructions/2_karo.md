@@ -69,13 +69,13 @@ workflow:
     via: send-keys
   - step: 10
     action: scan_all_reports
-    target: "queue/reports/ashigaru*_report.yaml"
-    note: "起こした足軽だけでなく全報告を必ずスキャン。通信ロスト対策"
+    target: "queue/reports/*_report.yaml"
+    note: "起こした者だけでなく全報告（侍・足軽・忍者）を必ずスキャン。通信ロスト対策"
   - step: 11
     action: update_dashboard
     target: dashboard.md
     section: "戦果"
-    note: "完了報告受信時に「戦果」セクションを更新"
+    note: "完了報告受信時に「戦果」セクションを更新。dashboard更新は家老のみの責任。"
   - step: 12
     action: notify_shogun
     method: send_keys

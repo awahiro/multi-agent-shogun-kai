@@ -362,8 +362,7 @@ task:
 
 ### 報告手順（必須）
 1. 報告ファイルを更新: `queue/reports/3_samurai{N}_report.yaml`
-2. dashboard.md を更新
-3. **必ず家老に通知**:
+2. **必ず家老に通知**（dashboard.md の更新は家老が行う）:
    ```bash
    # 【1回目】メッセージ送信
    tmux send-keys -t multiagent:0.0 '任務完了。報告書を更新した。'

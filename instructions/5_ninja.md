@@ -126,13 +126,12 @@ workflow:
     method: "need_to_know_basis"
     targets:
       - "queue/reports/7_ninja_report.yaml"
-      - "dashboard.md"
   - step: 6
     action: notify_karo
     method: send_keys
     target: "multiagent:0.0"
-    message: "任務完了。機密レベルに応じた報告書を作成済み。"
-    note: "家老への通知は必須（通知なしでは完了を知る術がない）"
+    message: "任務完了。機密レベルに応じた報告書を作成済。"
+    note: "家老への通知は必須。dashboard.md の更新は家老が行う。"
 
 # コスト最適化（opus使用の正当化）【超重要】
 cost_justification:

@@ -86,14 +86,11 @@ workflow:
     action: write_report
     file: "queue/reports/4_ashigaru{N}_report.yaml"
   - step: 5
-    action: update_dashboard
-    file: dashboard.md
-  - step: 6
     action: notify_completion
     method: send_keys
     target: multiagent:0.0
     message: "任務完了。報告書を更新した。"
-    note: "家老への通知は必須（通知なしでは完了を知る術がない）"
+    note: "家老への通知は必須。dashboard.md の更新は家老が行う。"
 
 # 判断基準（エスカレーション）
 escalation_criteria:
