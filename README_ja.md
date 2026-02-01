@@ -1,4 +1,4 @@
-# multi-agent-shogun
+# multi-agent-shogun-kai
 
 <div align="center">
 
