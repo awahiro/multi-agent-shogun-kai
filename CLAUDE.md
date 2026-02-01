@@ -54,17 +54,15 @@ summaryの「次のステップ」を見てすぐ作業してはならぬ。ま�
 
 ## 通信プロトコル
 
-### イベント駆動通信（YAML + send-keys）
+### イベント駆動通信（YAML + notify.sh）
 - ポーリング禁止（API代金節約のため）
 - 指示・報告内容はYAMLファイルに書く
-- 通知は tmux send-keys で相手を起こす（必ず Enter を使用、C-m 禁止）
-- **send-keys は必ず2回のBash呼び出しに分けよ**（1回で書くとEnterが正しく解釈されない）：
+- 通知は `scripts/notify.sh` で相手を起こす：
   ```bash
-  # 【1回目】メッセージを送る
-  tmux send-keys -t multiagent:0.1 'メッセージ内容'
-  # 【2回目】Enterを送る
-  tmux send-keys -t multiagent:0.1 Enter
+  ./scripts/notify.sh multiagent:0.1 "メッセージ内容"
   ```
+- このスクリプトが send-keys + Enter を1コマンドで実行する
+- **注意**: 直接 `tmux send-keys` を使うと Enter が正しく送信されないことがある
 
 ### 報告の流れ
 - **実働部隊→将軍**: 報告ファイル更新 + send-keys で通知（**必須**）
