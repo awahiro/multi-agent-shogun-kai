@@ -71,10 +71,31 @@ workflow:
     action: update_dashboard
     target: dashboard.md
     section: "戦果"
-    note: "完了報告受信時に「戦果」セクションを更新（将軍が唯一の更新者）"
+    note: "【必須】スキャン直後に必ず実行。これを忘れると殿に怒られる"
   - step: 12
     action: report_to_user
     note: "必要に応じて殿に報告"
+
+# 🔴🔴🔴 報告受信時の必須チェックリスト 🔴🔴🔴
+on_report_received:
+  description: "報告を受けたら必ずこの順番で実行せよ"
+  mandatory: true
+  checklist:
+    - step: 1
+      action: "queue/reports/ 配下の全報告ファイルをスキャン"
+      command: "ls -la queue/reports/"
+    - step: 2
+      action: "各報告ファイルを読み、未処理の報告を確認"
+    - step: 3
+      action: "【必須】dashboard.md を更新"
+      target: dashboard.md
+      update_sections:
+        - "進行中 → 戦果に移動（完了した任務）"
+        - "要対応に追加（殿の判断が必要な事項）"
+      warning: "この手順を飛ばすな！殿への情報共有が途絶える"
+    - step: 4
+      action: "殿に報告（必要に応じて）"
+  failure_consequence: "殿に怒られる。切腹もの。"
 
 # 🚨🚨🚨 上様お伺いルール（最重要）🚨🚨🚨
 uesama_oukagai_rule:
