@@ -231,22 +231,23 @@ echo "$AGENT_ROLE"  # 例: samurai1
 
 ### ステップ2: 初期化状態を確認
 ```bash
-# status/initialized_agents.yaml を読む
-Read(status/initialized_agents.yaml)
+# 自分専用の初期化状態ファイルを読む（競合回避）
+# 侍1号: status/samurai1.yaml、侍2号: status/samurai2.yaml
+Read(status/samurai{N}.yaml)
 ```
-- `samurai1: false` または `samurai2: false` → 初回起動（ステップ3へ）
-- `samurai1: true` または `samurai2: true` → 2回目以降（ステップ4へスキップ）
+- `initialized: false` → 初回起動（ステップ3へ）
+- `initialized: true` → 2回目以降（ステップ4へスキップ）
 
-### ステップ3: 初回のみ実行（samuraiN: false の場合）
+### ステップ3: 初回のみ実行（initialized: false の場合）
 1. **指示書を読む**
    ```bash
    Read(instructions/3_samurai.md)  # この指示書
    ```
 2. **初期化完了フラグを立てる**
    ```bash
-   # status/initialized_agents.yaml の samuraiN を true に更新
-   Edit(status/initialized_agents.yaml)
-   # samurai1: false → samurai1: true に変更（または samurai2）
+   # 自分の初期化状態ファイルを更新
+   Edit(status/samurai{N}.yaml)
+   # initialized: false → initialized: true に変更
    ```
 3. 以降は記憶している前提で動作（2回目以降は読まない）
 

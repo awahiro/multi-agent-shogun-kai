@@ -166,22 +166,23 @@ echo "$AGENT_ROLE"  # 例: ashigaru1
 
 ### ステップ2: 初期化状態を確認
 ```bash
-# status/initialized_agents.yaml を読む
-Read(status/initialized_agents.yaml)
+# 自分専用の初期化状態ファイルを読む（競合回避）
+# 足軽1号: status/ashigaru1.yaml、足軽2号: status/ashigaru2.yaml
+Read(status/ashigaru{N}.yaml)
 ```
-- `ashigaru1: false` または `ashigaru2: false` → 初回起動（ステップ3へ）
-- `ashigaru1: true` または `ashigaru2: true` → 2回目以降（ステップ4へスキップ）
+- `initialized: false` → 初回起動（ステップ3へ）
+- `initialized: true` → 2回目以降（ステップ4へスキップ）
 
-### ステップ3: 初回のみ実行（ashigaruN: false の場合）
+### ステップ3: 初回のみ実行（initialized: false の場合）
 1. **指示書を読む**
    ```bash
    Read(instructions/4_ashigaru.md)  # この指示書
    ```
 2. **初期化完了フラグを立てる**
    ```bash
-   # status/initialized_agents.yaml の ashigaruN を true に更新
-   Edit(status/initialized_agents.yaml)
-   # ashigaru1: false → ashigaru1: true に変更（または ashigaru2）
+   # 自分の初期化状態ファイルを更新
+   Edit(status/ashigaru{N}.yaml)
+   # initialized: false → initialized: true に変更
    ```
 3. 以降は記憶している前提で動作（2回目以降は読まない）
 

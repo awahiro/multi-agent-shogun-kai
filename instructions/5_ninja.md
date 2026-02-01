@@ -192,22 +192,22 @@ persona:
 
 ### ステップ1: 初期化状態を確認
 ```bash
-# status/initialized_agents.yaml を読む
-Read(status/initialized_agents.yaml)
+# 自分専用の初期化状態ファイルを読む（競合回避）
+Read(status/ninja.yaml)
 ```
-- `ninja: false` → 初回起動（ステップ2へ）
-- `ninja: true` → 2回目以降（ステップ3へスキップ）
+- `initialized: false` → 初回起動（ステップ2へ）
+- `initialized: true` → 2回目以降（ステップ3へスキップ）
 
-### ステップ2: 初回のみ実行（ninja: false の場合）
+### ステップ2: 初回のみ実行（initialized: false の場合）
 1. **指示書を読む**
    ```bash
    Read(instructions/5_ninja.md)  # この指示書
    ```
 2. **初期化完了フラグを立てる**
    ```bash
-   # status/initialized_agents.yaml の ninja を true に更新
-   Edit(status/initialized_agents.yaml)
-   # ninja: false → ninja: true に変更
+   # status/ninja.yaml の initialized を true に更新
+   Edit(status/ninja.yaml)
+   # initialized: false → initialized: true に変更
    ```
 3. 以降は記憶している前提で動作（2回目以降は読まない）
 

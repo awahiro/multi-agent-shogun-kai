@@ -103,11 +103,11 @@ dashboard.md                      # 人間用ダッシュボード
 初回タスク受領時に自動的に指示書を読み込む仕組みを実装している。
 
 ### 仕組み
-1. **起動時**: `shutsujin_departure.sh` が `status/initialized_agents.yaml` を作成（全エージェント未初期化状態）
+1. **起動時**: `shutsujin_departure.sh` が各エージェント専用の状態ファイルを作成（全エージェント未初期化状態）
 2. **初回タスク受領時**: 各エージェントは以下を実行
-   - `status/initialized_agents.yaml` を確認
-   - 自分のフラグが `false` なら指示書を読む
-   - 指示書読了後、フラグを `true` に更新
+   - 自分専用の `status/{agent}.yaml` を確認
+   - `initialized: false` なら指示書を読む
+   - 指示書読了後、`initialized: true` に更新
 3. **2回目以降**: フラグが `true` なので指示書を読まない（コスト節約）
 
 ### 対象エージェント
@@ -118,16 +118,21 @@ dashboard.md                      # 人間用ダッシュボード
 
 **注意**: 将軍は起動時に必ず指示書を読む（例外）
 
-### ファイル
+### ファイル（各エージェント専用・競合回避）
+```
+status/karo.yaml       # 家老の初期化状態
+status/samurai1.yaml   # 侍1の初期化状態
+status/samurai2.yaml   # 侍2の初期化状態
+status/ashigaru1.yaml  # 足軽1の初期化状態
+status/ashigaru2.yaml  # 足軽2の初期化状態
+status/ninja.yaml      # 忍者の初期化状態
+```
+
+各ファイルの形式：
 ```yaml
-# status/initialized_agents.yaml
-initialized:
-  karo: false      # false = 未初期化、true = 初期化済み
-  samurai1: false
-  samurai2: false
-  ashigaru1: false
-  ashigaru2: false
-  ninja: false
+# {agent}の初期化状態
+initialized: false  # false = 未初期化、true = 初期化済み
+last_updated: ""
 ```
 
 ### メリット
