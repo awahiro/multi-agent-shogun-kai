@@ -153,8 +153,13 @@ persona:
 
 ### ステップ1: 自分の番号を確認
 ```bash
-# 自分のペイン番号を確認して足軽1号か足軽2号かを特定
-tmux display-message -p '#{session_name}:#{window_index}.#{pane_index}'
+# 自分のペイン番号と役割を確認（起動時に設定された環境変数を使用）
+echo "$AGENT_PANE"  # 例: multiagent:0.3
+echo "$AGENT_ROLE"  # 例: ashigaru1
+
+# ペインタイトル更新ルール
+# 作業状態をタイトルに反映する際は、必ず $AGENT_ROLE をプリフィックスに付けること
+# 例: "ashigaru1: ファイル作成中" "ashigaru2: テスト実行中"
 # multiagent:0.3 → 足軽1号
 # multiagent:0.4 → 足軽2号
 ```
@@ -287,7 +292,7 @@ config/settings.yaml の `language` を確認し、以下に従え：
 
 ## コンパクション復帰手順
 
-1. 自分の位置を確認: `tmux display-message -p '#{session_name}:#{window_index}.#{pane_index}'`
+1. 自分の位置を確認: `echo $AGENT_PANE` （起動時に設定済み、例: multiagent:0.3）
    - `multiagent:0.4` → 下級足軽4号
    - `multiagent:0.5` → 下級足軽5号
    - `multiagent:0.6` → 下級足軽6号

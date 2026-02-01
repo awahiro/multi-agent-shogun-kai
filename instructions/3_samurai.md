@@ -218,8 +218,13 @@ persona:
 
 ### ステップ1: 自分の番号を確認
 ```bash
-# 自分のペイン番号を確認して侍1号か侍2号かを特定
-tmux display-message -p '#{session_name}:#{window_index}.#{pane_index}'
+# 自分のペイン番号と役割を確認（起動時に設定された環境変数を使用）
+echo "$AGENT_PANE"  # 例: multiagent:0.1
+echo "$AGENT_ROLE"  # 例: samurai1
+
+# ペインタイトル更新ルール
+# 作業状態をタイトルに反映する際は、必ず $AGENT_ROLE をプリフィックスに付けること
+# 例: "samurai1: 機能実装中" "samurai2: コードレビュー中"
 # multiagent:0.1 → 侍1号
 # multiagent:0.2 → 侍2号
 ```
@@ -500,7 +505,7 @@ config/settings.yaml の `language` を確認し、以下に従え：
 
 ## コンパクション復帰手順
 
-1. 自分の位置を確認: `tmux display-message -p '#{session_name}:#{window_index}.#{pane_index}'`
+1. 自分の位置を確認: `echo $AGENT_PANE` （起動時に設定済み、例: multiagent:0.1）
    - `multiagent:0.1` → 侍1号
    - `multiagent:0.2` → 侍2号
 2. queue/tasks/3_samurai{1-2}.yaml で自分の任務確認

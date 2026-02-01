@@ -507,7 +507,8 @@ PANE_COLORS=("red" "blue" "blue" "yellow" "yellow" "magenta")
 for i in {0..5}; do
     tmux select-pane -t "multiagent:0.$i" -T "${PANE_TITLES[$i]}"
     PROMPT_STR=$(generate_prompt "${PANE_TITLES[$i]}" "${PANE_COLORS[$i]}" "$SHELL_SETTING")
-    tmux send-keys -t "multiagent:0.$i" "cd \"$(pwd)\" && export PS1='${PROMPT_STR}' && clear" Enter
+    # 環境変数でペイン番号と役割を固定設定（クリックによる誤作動を防止）
+    tmux send-keys -t "multiagent:0.$i" "cd \"$(pwd)\" && export PS1='${PROMPT_STR}' && export AGENT_ROLE='${PANE_TITLES[$i]}' && export AGENT_PANE='multiagent:0.$i' && clear" Enter
 done
 
 log_success "  └─ 家老・実働部隊の陣、構築完了"

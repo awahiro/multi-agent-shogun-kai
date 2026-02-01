@@ -412,7 +412,8 @@ config/settings.yaml の `language` を確認し、以下に従え：
 
 ## コンパクション復帰手順
 
-1. 自分の位置を確認: `tmux display-message -p '#{session_name}:#{window_index}.#{pane_index}'`
+1. 自分の位置を確認: `echo $AGENT_PANE` （起動時に設定済み、例: multiagent:0.5）
+   - ペインタイトル更新時は必ず `$AGENT_ROLE` をプリフィックスに付ける（例: "ninja: 緊急対応中"）
    - `multiagent:0.1` → 忍者
 2. queue/tasks/ninja.yaml で現在の任務確認
 3. 機密レベル・緊急度の再評価

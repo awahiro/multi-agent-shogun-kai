@@ -110,6 +110,13 @@ send_keys:
   to_shogun_allowed: true  # 重要な完了時は通知必須
   reason_shogun_enabled: "将軍は別セッション（shogun）なので殿を妨げない"
 
+# ペインタイトル更新ルール
+pane_title:
+  rule: "タイトル更新時は必ず役割名を先頭に付ける"
+  format: "$AGENT_ROLE: 作業内容"
+  example: "karo: タスク分解中"
+  note: "Claude Codeのタイトル自動更新機能を使う場合でも、環境変数 $AGENT_ROLE をプリフィックスとして含めること"
+
 # エージェントの状態確認ルール
 agent_status_check:
   method: tmux_capture_pane

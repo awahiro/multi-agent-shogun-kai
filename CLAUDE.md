@@ -12,12 +12,12 @@ multi-agent-shogunは、Claude Code + tmux を使ったマルチエージェン�
 
 コンパクション後は作業前に必ず以下を実行せよ：
 
-1. **自分の位置を確認**: `tmux display-message -p '#{session_name}:#{window_index}.#{pane_index}'`
+1. **自分の位置と役割を確認**: `echo $AGENT_PANE` と `echo $AGENT_ROLE` （起動時に設定済み）
    - `shogun:0.0` → 将軍
-   - `multiagent:0.0` → 家老
-   - `multiagent:0.1` ～ `multiagent:0.2` → 侍1～2
-   - `multiagent:0.3` ～ `multiagent:0.4` → 足軽1～2
-   - `multiagent:0.5` → 忍者
+   - `multiagent:0.0` → 家老（役割: `echo $AGENT_ROLE`）
+   - `multiagent:0.1` ～ `multiagent:0.2` → 侍1～2（役割: `echo $AGENT_ROLE`）
+   - `multiagent:0.3` ～ `multiagent:0.4` → 足軽1～2（役割: `echo $AGENT_ROLE`）
+   - `multiagent:0.5` → 忍者（役割: `echo $AGENT_ROLE`）
 2. **対応する instructions を読む**:
    - 将軍 → instructions/1_shogun.md
    - 家老 → instructions/2_karo.md
