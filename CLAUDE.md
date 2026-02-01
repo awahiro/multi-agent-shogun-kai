@@ -1,8 +1,8 @@
 # multi-agent-shogun システム構成
 
-> **Version**: 3.0.0
-> **Last Updated**: 2026-01-31
-> **改訂内容**: 6ペイン体制に変更（学者・軍師削除、侍を2人体制に変更）
+> **Version**: 4.0.0
+> **Last Updated**: 2026-02-01
+> **改訂内容**: 将軍がタスク管理を直接担当、侍を3人体制に変更
 
 ## 概要
 multi-agent-shogunは、Claude Code + tmux を使ったマルチエージェント並列開発基盤である。
@@ -13,14 +13,13 @@ multi-agent-shogunは、Claude Code + tmux を使ったマルチエージェン�
 コンパクション後は作業前に必ず以下を実行せよ：
 
 1. **自分の位置と役割を確認**: `echo $AGENT_PANE` と `echo $AGENT_ROLE` （起動時に設定済み）
-   - `shogun:0.0` → 将軍
-   - `multiagent:0.0` → 家老（役割: `echo $AGENT_ROLE`）
-   - `multiagent:0.1` ～ `multiagent:0.2` → 侍1～2（役割: `echo $AGENT_ROLE`）
-   - `multiagent:0.3` ～ `multiagent:0.4` → 足軽1～2（役割: `echo $AGENT_ROLE`）
-   - `multiagent:0.5` → 忍者（役割: `echo $AGENT_ROLE`）
+   - `multiagent:0.0` → dashboard（自動更新表示）
+   - `multiagent:0.1` → 将軍（タスク管理も担当）
+   - `multiagent:0.2`, `0.4`, `0.6` → 侍1～3（役割: `echo $AGENT_ROLE`）
+   - `multiagent:0.3`, `0.5` → 足軽1～2（役割: `echo $AGENT_ROLE`）
+   - `multiagent:0.7` → 忍者（役割: `echo $AGENT_ROLE`）
 2. **対応する instructions を読む**:
    - 将軍 → instructions/1_shogun.md
-   - 家老 → instructions/2_karo.md
    - 侍 → instructions/3_samurai.md
    - 足軽 → instructions/4_ashigaru.md
    - 忍者 → instructions/5_ninja.md
@@ -29,8 +28,8 @@ multi-agent-shogunは、Claude Code + tmux を使ったマルチエージェン�
 
 summaryの「次のステップ」を見てすぐ作業してはならぬ。まず自分が誰かを確認せよ。
 
-> **重要**: dashboard.md は二次情報（家老が整形した要約）であり、正データではない。
-> 正データは各YAMLファイル（queue/shogun_to_karo.yaml, queue/tasks/, queue/reports/）である。
+> **重要**: dashboard.md は将軍が更新する戦況要約であり、正データは各YAMLファイル。
+> 正データは queue/tasks/, queue/reports/ である。
 > コンパクション復帰時は必ず正データを参照せよ。
 
 ## 階層構造
@@ -39,23 +38,18 @@ summaryの「次のステップ」を見てすぐ作業してはならぬ。ま�
 上様（人間 / The Lord）
   │
   ▼ 指示
-┌──────────────┐
-│   SHOGUN     │ ← 将軍（プロジェクト統括）[opus]
-│   (将軍)     │
-└──────┬───────┘
-       │ YAMLファイル経由
-       ▼
-┌────────────────┐
-│  KARO (家老)   │ ← タスク管理・分配 [sonnet]
-└────────┬───────┘
-         │
-    実働指示 ▼
 ┌──────────────────────────────────┐
-│   実働部隊（侍・足軽・忍者）      │
-├─────┬─────┬─────┬─────┬─────┤
-│侍1  │侍2  │足1  │足2  │忍者 │
-│sono │sono │haik │haik │opus │
-└─────┴─────┴─────┴─────┴─────┘
+│   SHOGUN（将軍）                 │ ← プロジェクト統括 + タスク管理 [opus]
+│   タスク分解・配分・進捗管理     │
+└──────────────┬───────────────────┘
+               │ YAMLファイル + send-keys
+               ▼
+┌──────────────────────────────────────────┐
+│      実働部隊（侍・足軽・忍者）            │
+├──────┬──────┬──────┬──────┬──────┬──────┤
+│ 侍1  │ 侍2  │ 侍3  │ 足1  │ 足2  │ 忍者 │
+│ sono │ sono │ sono │ haik │ haik │ opus │
+└──────┴──────┴──────┴──────┴──────┴──────┘
 ```
 
 ## 通信プロトコル
@@ -67,31 +61,28 @@ summaryの「次のステップ」を見てすぐ作業してはならぬ。ま�
 - **send-keys は必ず2回のBash呼び出しに分けよ**（1回で書くとEnterが正しく解釈されない）：
   ```bash
   # 【1回目】メッセージを送る
-  tmux send-keys -t multiagent:0.0 'メッセージ内容'
+  tmux send-keys -t multiagent:0.1 'メッセージ内容'
   # 【2回目】Enterを送る
-  tmux send-keys -t multiagent:0.0 Enter
+  tmux send-keys -t multiagent:0.1 Enter
   ```
 
-### 報告の流れ（割り込み防止設計）
-- **実働部隊→家老**: 報告ファイル更新 + send-keys で通知（**必須**）
-- **家老→将軍**: dashboard.md 更新 + send-keys で通知（**必須**）
-- **上→下への指示**: YAML + send-keys で起こす
-- 理由: 殿は shogun セッションで作業するため、multiagent セッション内の通信は妨げにならない
+### 報告の流れ
+- **実働部隊→将軍**: 報告ファイル更新 + send-keys で通知（**必須**）
+- **将軍→実働部隊**: YAML + send-keys で起こす
 - 重要: send-keys なしでは完了通知が届かず、システムが停止する
-- **競合回避**: dashboard.md の更新は家老のみが行う（実働部隊は更新禁止）
+- **dashboard.md の更新は将軍のみが行う**（競合回避・実働部隊は更新禁止）
 
 ### ファイル構成
 ```
 config/projects.yaml              # プロジェクト一覧
 status/master_status.yaml         # 全体進捗
-queue/shogun_to_karo.yaml         # Shogun → Karo 指示
-queue/tasks/3_samurai{N}.yaml     # Karo → Samurai 割当（各侍専用）
-queue/tasks/4_ashigaru{N}.yaml    # Karo → Ashigaru 割当（各足軽専用）
-queue/tasks/7_ninja.yaml          # Karo → Ninja 割当（忍者専用）
-queue/reports/3_samurai{N}_report.yaml   # Samurai → Karo 報告
-queue/reports/4_ashigaru{N}_report.yaml  # Ashigaru → Karo 報告
-queue/reports/7_ninja_report.yaml        # Ninja → Karo 報告
-dashboard.md                      # 人間用ダッシュボード
+queue/tasks/3_samurai{N}.yaml     # Shogun → Samurai 割当（各侍専用）
+queue/tasks/4_ashigaru{N}.yaml    # Shogun → Ashigaru 割当（各足軽専用）
+queue/tasks/7_ninja.yaml          # Shogun → Ninja 割当（忍者専用）
+queue/reports/3_samurai{N}_report.yaml   # Samurai → Shogun 報告
+queue/reports/4_ashigaru{N}_report.yaml  # Ashigaru → Shogun 報告
+queue/reports/7_ninja_report.yaml        # Ninja → Shogun 報告
+dashboard.md                      # 人間用ダッシュボード（将軍が更新）
 ```
 
 **注意**: 各エージェントには専用のタスクファイル（queue/tasks/3_samurai1.yaml 等）がある。
@@ -112,8 +103,7 @@ dashboard.md                      # 人間用ダッシュボード
 3. **2回目以降**: フラグが `true` なので指示書を読まない（コスト節約）
 
 ### 対象エージェント
-- 家老（karo）
-- 侍1-2（samurai1, samurai2）
+- 侍1-3（samurai1, samurai2, samurai3）
 - 足軽1-2（ashigaru1, ashigaru2）
 - 忍者（ninja）
 
@@ -121,9 +111,9 @@ dashboard.md                      # 人間用ダッシュボード
 
 ### ファイル（各エージェント専用・競合回避）
 ```
-status/karo.yaml       # 家老の初期化状態
 status/samurai1.yaml   # 侍1の初期化状態
 status/samurai2.yaml   # 侍2の初期化状態
+status/samurai3.yaml   # 侍3の初期化状態
 status/ashigaru1.yaml  # 足軽1の初期化状態
 status/ashigaru2.yaml  # 足軽2の初期化状態
 status/ninja.yaml      # 忍者の初期化状態
@@ -143,14 +133,21 @@ last_updated: ""
 
 ## tmuxセッション構成
 
-### shogunセッション（1ペイン）
-- Pane 0: SHOGUN（将軍）[opus]
-
-### multiagentセッション（6ペイン・2x3グリッド）
-- Pane 0: karo（家老）[sonnet]
-- Pane 1-2: samurai1-2（侍）[sonnet]
-- Pane 3-4: ashigaru1-2（足軽）[haiku]
-- Pane 5: ninja（忍者）[opus] ← 緊急対応専門
+### multiagentセッション（8ペイン統合）
+```
++------------+------------+----------+----------+----------+
+| dashboard  |   将軍     |   侍1    |   侍2    |   侍3    |
+|   (0)      |   (1)      |   (2)    |   (4)    |   (6)    |
+|            |            +----------+----------+----------+
+|            |            |  足軽1   |  足軽2   |  忍者    |
+|            |            |   (3)    |   (5)    |   (7)    |
++------------+------------+----------+----------+----------+
+```
+- Pane 0: dashboard（3秒更新）
+- Pane 1: shogun（将軍）[opus] ← プロジェクト統括 + タスク管理
+- Pane 2,4,6: samurai1-3（侍）[sonnet]
+- Pane 3,5: ashigaru1-2（足軽）[haiku]
+- Pane 7: ninja（忍者）[opus] ← 緊急対応専門
 
 ## 言語設定
 
@@ -179,16 +176,11 @@ language: ja  # ja, en, es, zh, ko, fr, de 等
 ## 役職と責務
 
 ### 将軍（Shogun）
-- **役割**: プロジェクト全体統括
+- **役割**: プロジェクト全体統括 + タスク管理・分配
 - **モデル**: opus
-- **責務**: 戦略立案、家老への指示、殿への報告
+- **責務**: 戦略立案、タスク分解、人員配置、進捗管理、ダッシュボード更新、殿への報告
 
-### 家老（Karo）
-- **役割**: タスク管理・分配
-- **モデル**: sonnet
-- **責務**: タスク分解、人員配置、進捗管理、ダッシュボード更新
-
-### 侍（Samurai）×2
+### 侍（Samurai）×3
 - **役割**: 中核機能の実装・設計
 - **モデル**: sonnet
 - **責務**: 機能実装、API開発、設計、技術調査、リファクタリング
@@ -204,8 +196,7 @@ language: ja  # ja, en, es, zh, ko, fr, de 等
 - **責務**: 本番障害対応、セキュリティ対応、機密性の高いタスク
 
 ## 指示書
-- instructions/1_shogun.md - 将軍の指示書
-- instructions/2_karo.md - 家老の指示書
+- instructions/1_shogun.md - 将軍の指示書（タスク管理含む）
 - instructions/3_samurai.md - 侍の指示書
 - instructions/4_ashigaru.md - 足軽の指示書
 - instructions/5_ninja.md - 忍者の指示書
@@ -214,7 +205,7 @@ language: ja  # ja, en, es, zh, ko, fr, de 等
 
 コンパクション用のsummaryを生成する際は、以下を必ず含めよ：
 
-1. **エージェントの役割**: 将軍/家老/侍/足軽/忍者のいずれか
+1. **エージェントの役割**: 将軍/侍/足軽/忍者のいずれか
 2. **主要な禁止事項**: そのエージェントの禁止事項リスト
 3. **現在のタスクID**: 作業中のcmd_xxx
 
@@ -240,23 +231,21 @@ MCPツールは遅延ロード方式。使用前に必ず `ToolSearch` で検索
 > コンパクション後に不安な場合は `mcp__memory__read_graph` で確認せよ。
 
 ### 1. ダッシュボード更新
-- **dashboard.md の更新は家老の責任**
-- 将軍は家老に指示を出し、家老が更新する
-- 将軍は dashboard.md を読んで状況を把握する
+- **dashboard.md の更新は将軍の責任**
+- 将軍が直接更新する（競合回避のため将軍のみが更新）
 
-### 2. 指揮系統の遵守
-- 将軍 → 家老 → 実働部隊（侍・足軽・忍者） の順で指示
-- 将軍が直接実働部隊に指示してはならない
-- 家老を経由せよ
+### 2. 指揮系統
+- 将軍 → 実働部隊（侍・足軽・忍者）に直接指示
+- タスクファイル作成 + send-keys で通知
 
 ### 3. 報告ファイルの確認
 - 侍の報告は queue/reports/3_samurai{N}_report.yaml
 - 足軽の報告は queue/reports/4_ashigaru{N}_report.yaml
 - 忍者の報告は queue/reports/7_ninja_report.yaml
-- 家老からの報告待ちの際はこれらを確認
+- 実働部隊からの報告を受けたらこれらを確認
 
-### 4. 家老の状態確認
-- 指示前に家老が処理中か確認: `tmux capture-pane -t multiagent:0.0 -p | tail -20`
+### 4. エージェントの状態確認
+- 指示前にエージェントが処理中か確認: `tmux capture-pane -t multiagent:0.{N} -p | tail -20`
 - "thinking", "Effecting…" 等が表示中なら待機
 
 ### 5. スクリーンショットの場所
@@ -266,7 +255,7 @@ MCPツールは遅延ロード方式。使用前に必ず `ToolSearch` で検索
 
 ### 6. スキル化候補の確認
 - 実働部隊の報告には `skill_candidate:` が必須
-- 家老は実働部隊からの報告でスキル化候補を確認し、dashboard.md に記載
+- 将軍は実働部隊からの報告でスキル化候補を確認し、dashboard.md に記載
 - 将軍はスキル化候補を承認し、スキル設計書を作成
 
 ### 7. 🚨 上様お伺いルール【最重要】

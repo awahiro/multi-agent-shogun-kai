@@ -2,19 +2,19 @@
 
 ## 修正内容の確認
 
-2026-01-31に実施した重要な修正：
+2026-02-01に実施した構造変更：
 
-### 1. 報告メカニズムの修正
-- **問題**: send-keys禁止により、上位階層が作業完了を知る術がなかった
-- **解決**: 全階層でsend-keys通知を必須化
+### 1. 構造の概要
+- 将軍 → 実働部隊の2階層構造
+- 将軍がタスク管理を直接担当
 
 ### 2. 修正ファイル一覧
 - `CLAUDE.md` - 通信プロトコルの更新
-- `instructions/2_karo.md` - 家老の報告ルール修正
-- `instructions/3_samurai.md` - 侍の報告手順追加
-- `instructions/4_ashigaru.md` - 足軽の報告手順追加
-- `instructions/5_ninja.md` - 忍者の報告手順追加
-- `shutsujin_departure.sh` - 待機時間延長（0.5秒→1秒）
+- `instructions/1_shogun.md` - 将軍のタスク管理機能追加
+- `instructions/3_samurai.md` - 侍の報告手順（将軍に直接報告）
+- `instructions/4_ashigaru.md` - 足軽の報告手順（将軍に直接報告）
+- `instructions/5_ninja.md` - 忍者の報告手順（将軍に直接報告）
+- `shutsujin_departure.sh` - 7ペイン統合レイアウト
 
 ## テスト手順
 
@@ -23,69 +23,52 @@
 # システムを起動
 ./shutsujin_departure.sh
 
-# 各エージェントが指示書を読み込んだか確認
-tmux capture-pane -t shogun -p | grep "instructions/1_shogun.md"
-tmux capture-pane -t multiagent:0.0 -p | grep "instructions/2_karo.md"
+# 各エージェントのペイン確認
+tmux list-panes -t multiagent
+# 期待: 7ペイン (0=将軍, 1-3=侍, 4-5=足軽, 6=忍者)
 ```
 
 ### 2. 通信フローテスト
 
-#### 将軍→家老の通信テスト
+#### 将軍→実働部隊の通信テスト
 ```bash
 # 将軍セッションにアタッチ
-tmux attach-session -t shogun
-
-# 将軍から指示を出す（将軍のClaude内で）
-cat > queue/shogun_to_karo.yaml << EOF
-queue:
-  - id: cmd_test_001
-    timestamp: "$(date +%Y-%m-%dT%H:%M:%S)"
-    command: "通信テストを実施せよ"
-    priority: high
-    status: pending
-EOF
-
-# 家老に通知（2回に分ける）
-tmux send-keys -t multiagent:0.0 'queue/shogun_to_karo.yaml に新しい指示がある。確認して実行せよ。'
-tmux send-keys -t multiagent:0.0 Enter
-```
-
-#### 家老→実働部隊の通信テスト
-```bash
-# 家老セッションで確認
 tmux attach-session -t multiagent
 
-# 家老が侍にタスクを割り当てたか確認
-cat queue/tasks/3_samurai1.yaml
+# 将軍からタスクファイルを作成（将軍のClaude内で）
+cat > queue/tasks/3_samurai1.yaml << EOF
+task:
+  task_id: test_001
+  parent_cmd: cmd_test
+  description: "通信テストを実施せよ"
+  priority: high
+  status: pending
+EOF
+
+# 侍1に通知（2回に分ける）
+tmux send-keys -t multiagent:0.1 'queue/tasks/3_samurai1.yaml に新しいタスクがある。確認して実行せよ。'
+tmux send-keys -t multiagent:0.1 Enter
 ```
 
-#### 実働部隊→家老の報告テスト
+#### 実働部隊→将軍の報告テスト
 ```bash
 # 侍が作業完了後、以下が実行されるか確認：
 # 1. 報告ファイル更新
 cat queue/reports/3_samurai1_report.yaml
 
-# 2. dashboard.md 更新
-cat dashboard.md | grep "戦果"
-
-# 3. 家老への通知が送信されたか
+# 2. 将軍への通知が送信されたか
 tmux capture-pane -t multiagent:0.0 -p | grep "任務完了"
-```
 
-#### 家老→将軍の報告テスト
-```bash
-# 家老が将軍に通知を送ったか確認
-tmux capture-pane -t shogun -p | grep "dashboard.md を更新した"
+# 3. dashboard.md が将軍により更新されたか
+cat dashboard.md | grep "戦果"
 ```
 
 ## 期待される動作
 
 ### 正常系
-1. 将軍が指示 → 家老が受信して「はっ！」と応答
-2. 家老がタスク分解 → 実働部隊に割り当て
-3. 実働部隊が作業 → 完了後、家老に通知
-4. 家老がdashboard.md更新 → 将軍に通知
-5. 将軍がdashboard.md確認 → 殿に報告
+1. 将軍がタスクをYAMLに書く → 実働部隊に send-keys で通知
+2. 実働部隊が作業 → 完了後、報告ファイル更新 + 将軍に通知
+3. 将軍がdashboard.md更新 → 殿に報告
 
 ### 異常系の確認点
 - send-keysのEnterが届かない → メッセージだけ表示され実行されない
@@ -94,12 +77,12 @@ tmux capture-pane -t shogun -p | grep "dashboard.md を更新した"
 
 ## トラブルシューティング
 
-### 問題: 指示書が読み込まれない
+### 問題: タスクが届かない
 ```bash
-# 手動で再送信
-tmux send-keys -t multiagent:0.0 'instructions/2_karo.md を読んで役割を理解せよ。'
+# 手動でタスク通知を再送信
+tmux send-keys -t multiagent:0.1 'queue/tasks/3_samurai1.yaml を確認せよ。'
 sleep 1
-tmux send-keys -t multiagent:0.0 Enter
+tmux send-keys -t multiagent:0.1 Enter
 ```
 
 ### 問題: 報告が届かない
@@ -119,21 +102,32 @@ tmux list-sessions
 tmux list-panes -t multiagent
 
 # ペインが存在するか確認
-tmux capture-pane -t multiagent:0.0 -p | tail -5
+tmux capture-pane -t multiagent:0.1 -p | tail -5
 ```
 
 ## 検証項目チェックリスト
 
-- [ ] 起動時に全エージェントが指示書を読み込む
-- [ ] 将軍→家老の指示が届く
-- [ ] 家老→実働部隊のタスク割り当てが届く
-- [ ] 実働部隊→家老の完了報告が届く
-- [ ] 家老→将軍の完了通知が届く
-- [ ] dashboard.mdが更新される
-- [ ] 殿（shogunセッション）の入力が妨げられない
+- [ ] 起動時に7ペインが作成される
+- [ ] 将軍→実働部隊のタスク割り当てが届く
+- [ ] 実働部隊→将軍の完了報告が届く
+- [ ] dashboard.mdが将軍により更新される
+- [ ] 殿（multiagent:0.0ペイン）の入力が妨げられない
+
+## ペイン構成
+
+```
+┌─────────────────────────────────┐
+│           将軍 (0.0)            │
+├──────────┬──────────┬───────────┤
+│ 侍1(0.1) │ 侍2(0.2) │ 侍3(0.3)  │
+├──────────┼──────────┼───────────┤
+│足軽1(0.4)│足軽2(0.5)│忍者(0.6)  │
+└──────────┴──────────┴───────────┘
+```
 
 ## 備考
 
 - send-keysは必ず2回のBash呼び出しに分ける
 - 待機時間は環境により調整が必要（遅いマシンは延長）
 - 報告ファイルのパスは役職により異なる（3_samurai, 4_ashigaru, 7_ninja）
+- dashboard.md の更新は将軍のみが行う（競合回避）

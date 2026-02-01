@@ -4,7 +4,7 @@
 
 **Multi-Agent Orchestration System for Claude Code**
 
-*One command. Eight AI agents working in parallel.*
+*One command. Seven AI agents working in parallel.*
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Claude Code](https://img.shields.io/badge/Claude-Code-blueviolet)](https://claude.ai)
@@ -28,7 +28,7 @@ A modified version of the excellent multi-agent system [**multi-agent-shogun**](
 **multi-agent-shogun** is a system that runs multiple Claude Code instances simultaneously, organized like a feudal Japanese army.
 
 **Why use this?**
-- Give one command, get 8 AI workers executing in parallel
+- Give one command, get 7 AI workers executing in parallel
 - No waiting - you can keep giving commands while tasks run in background
 - AI remembers your preferences across sessions (Memory MCP)
 - Real-time progress tracking via dashboard
@@ -38,17 +38,16 @@ A modified version of the excellent multi-agent system [**multi-agent-shogun**](
              │
              ▼ Give orders
       ┌─────────────┐
-      │   SHOGUN    │  ← Receives your command, delegates immediately
+      │   SHOGUN    │  ← Receives your command, manages tasks directly
       └──────┬──────┘
              │ YAML files + tmux
-      ┌──────▼──────┐
-      │    KARO     │  ← Distributes tasks to workers
-      └──────┬──────┘
-             │
-    ┌─┬─┬─┬─┴─┬─┬─┬─┐
-    │1│2│3│4│5│6│7│8│  ← 8 workers execute in parallel
-    └─┴─┴─┴─┴─┴─┴─┴─┘
-        ASHIGARU
+    ┌────────┼────────┐
+    │        │        │
+    ▼        ▼        ▼
+┌───────┐ ┌────┐ ┌────────┐
+│SAMURAI│ │ASHI│ │ NINJA  │  ← 6 workers execute in parallel
+│  x3   │ │x2  │ │   x1   │
+└───────┘ └────┘ └────────┘
 ```
 
 ---
@@ -202,7 +201,7 @@ Then restart your computer and run `install.bat` again.
 - ✅ Guides you to the next steps (`first_setup.sh`)
 
 ### What `shutsujin_departure.sh` does:
-- ✅ Creates tmux sessions (shogun + multiagent)
+- ✅ Creates tmux session (shogun: 7 panes integrated)
 - ✅ Launches Claude Code on all agents
 - ✅ Automatically loads instruction files for each agent
 - ✅ Resets queue files for a fresh start
@@ -232,17 +231,17 @@ If you prefer to install dependencies manually:
 
 ### ✅ What Happens After Setup
 
-After running either option, **AI agents** will start automatically:
+After running either option, **7 AI agents** will start automatically:
 
 | Agent | Role | Quantity |
 |-------|------|----------|
-| 🏯 Shogun | Commander - receives your orders | 1 |
-| 📋 Karo | Manager - distributes tasks | 1 |
-| ⚔️ Ashigaru | Workers - execute tasks in parallel | 8 |
+| 🏯 Shogun | Commander - receives orders, manages tasks | 1 |
+| ⚔️ Samurai | Core implementation - features, design | 3 |
+| 👤 Ashigaru | Support work - simple tasks | 2 |
+| 🥷 Ninja | Emergency response - critical tasks | 1 |
 
-You'll see tmux sessions created:
-- `shogun` - Connect here to give commands
-- `multiagent` - Workers running in background
+You'll see tmux session created:
+- `multiagent` - All agents integrated (7 panes)
 
 ---
 
@@ -255,7 +254,7 @@ After running `shutsujin_departure.sh`, all agents automatically load their inst
 Open a new terminal and connect to the Shogun:
 
 ```bash
-tmux attach-session -t shogun
+tmux attach-session -t multiagent
 ```
 
 ### Step 2: Give Your First Order
@@ -267,11 +266,11 @@ Investigate the top 5 JavaScript frameworks and create a comparison table.
 ```
 
 The Shogun will:
-1. Write the task to a YAML file
-2. Notify the Karo (manager)
+1. Analyze the task and break it down
+2. Assign work to Samurai/Ashigaru/Ninja via YAML files
 3. Return control to you immediately (you don't have to wait!)
 
-Meanwhile, the Karo distributes the work to Ashigaru workers who execute in parallel.
+Meanwhile, the workers execute their assigned tasks in parallel.
 
 ### Step 3: Check Progress
 
@@ -292,11 +291,11 @@ Open `dashboard.md` in your editor to see real-time status:
 
 ### ⚡ 1. Parallel Execution
 
-One command can spawn up to 8 parallel tasks:
+One command can spawn up to 6 parallel tasks:
 
 ```
 You: "Research 5 MCP servers"
-→ 5 Ashigaru start researching simultaneously
+→ 3 Samurai + 2 Ashigaru start researching simultaneously
 → Results ready in minutes, not hours
 ```
 
@@ -355,13 +354,14 @@ Perfect for:
 
 ### 🧠 Model Configuration
 
-| Agent | Model | Thinking | Reason |
-|-------|-------|----------|--------|
-| Shogun | Opus | Disabled | Delegation & dashboard updates don't need deep reasoning |
-| Karo | Default | Enabled | Task distribution requires careful judgment |
-| Ashigaru | Default | Enabled | Actual implementation needs full capabilities |
+| Agent | Model | Reason |
+|-------|-------|--------|
+| Shogun | Opus | Strategy & task management require high-level judgment |
+| Samurai | Sonnet | Core implementation needs balanced capability |
+| Ashigaru | Haiku | Simple tasks - fast and cost-effective |
+| Ninja | Opus | Emergency/security work requires elite capability |
 
-The Shogun uses `MAX_THINKING_TOKENS=0` to disable extended thinking, reducing latency and cost while maintaining Opus-level judgment for high-level decisions.
+Cost ratio: Opus:Sonnet:Haiku ≈ 15:3:1
 
 ### 📁 Context Management
 
@@ -410,11 +410,11 @@ Review and approve them to grow your personal skill library.
 
 ### Why Hierarchical Structure?
 
-The Shogun → Karo → Ashigaru hierarchy exists for:
+The Shogun → Workers (Samurai/Ashigaru/Ninja) hierarchy exists for:
 
 1. **Immediate Response**: Shogun delegates instantly and returns control to you
-2. **Parallel Execution**: Karo distributes to multiple Ashigaru simultaneously
-3. **Separation of Concerns**: Shogun decides "what", Karo decides "who"
+2. **Parallel Execution**: Shogun distributes to 6 workers simultaneously
+3. **Cost Optimization**: Right model for the right task (Opus/Sonnet/Haiku)
 
 ### Why YAML + send-keys?
 
@@ -422,10 +422,10 @@ The Shogun → Karo → Ashigaru hierarchy exists for:
 - **send-keys**: Event-driven wakeups (no polling = no wasted API calls)
 - **No direct calls**: Agents can't interrupt each other or your input
 
-### Why Only Karo Updates Dashboard?
+### Why Only Shogun Updates Dashboard?
 
 - **Single responsibility**: One writer = no conflicts
-- **Information hub**: Karo receives all reports, knows the full picture
+- **Information hub**: Shogun receives all reports, knows the full picture
 - **Consistency**: All updates go through one quality gate
 
 ### How Skills Work
@@ -438,10 +438,10 @@ Skills (`.claude/commands/`) are **not committed to this repository** by design.
 - No one-size-fits-all solution
 
 **How to create new skills:**
-1. Ashigaru report "skill candidates" when they notice repeatable patterns
+1. Workers report "skill candidates" when they notice repeatable patterns
 2. Candidates appear in `dashboard.md` under "Skill Candidates"
 3. You review and approve (or reject)
-4. Approved skills are created by Karo
+4. Approved skills are created by Shogun
 
 This keeps skills **user-driven** — only what you find useful gets added.
 
@@ -500,15 +500,14 @@ You should see all servers with "Connected" status.
 You: "Research the top 5 AI coding assistants and compare them"
 
 What happens:
-1. Shogun delegates to Karo
-2. Karo assigns:
-   - Ashigaru 1: Research GitHub Copilot
-   - Ashigaru 2: Research Cursor
-   - Ashigaru 3: Research Claude Code
-   - Ashigaru 4: Research Codeium
-   - Ashigaru 5: Research Amazon CodeWhisperer
-3. All 5 research simultaneously
-4. Results compiled in dashboard.md
+1. Shogun breaks down task and assigns:
+   - Samurai 1: Research GitHub Copilot
+   - Samurai 2: Research Cursor
+   - Samurai 3: Research Claude Code
+   - Ashigaru 1: Research Codeium
+   - Ashigaru 2: Research Amazon CodeWhisperer
+2. All 5 research simultaneously
+3. Results compiled in dashboard.md
 ```
 
 ### Example 2: PoC Preparation
@@ -517,10 +516,10 @@ What happens:
 You: "Prepare a PoC for the project in this Notion page: [URL]"
 
 What happens:
-1. Karo fetches Notion content via MCP
-2. Ashigaru 2: Lists items to clarify
-3. Ashigaru 3: Researches technical feasibility
-4. Ashigaru 4: Creates PoC plan document
+1. Shogun fetches Notion content via MCP
+2. Samurai 1: Lists items to clarify
+3. Samurai 2: Researches technical feasibility
+4. Samurai 3: Creates PoC plan document
 5. All results in dashboard.md, ready for your meeting
 ```
 
@@ -567,9 +566,8 @@ language: en   # Japanese + English translation
 │                                                                     │
 │  shutsujin_departure.sh                                             │
 │      │                                                              │
-│      ├──▶ Create tmux sessions                                      │
-│      │         • "shogun" session (1 pane)                          │
-│      │         • "multiagent" session (9 panes, 3x3 grid)           │
+│      ├──▶ Create tmux session                                       │
+│      │         • "multiagent" session (7 panes integrated)              │
 │      │                                                              │
 │      ├──▶ Reset queue files and dashboard                           │
 │      │                                                              │
@@ -608,22 +606,21 @@ language: en   # Japanese + English translation
 **Normal Daily Usage:**
 ```bash
 ./shutsujin_departure.sh          # Start everything
-tmux attach-session -t shogun     # Connect to give commands
+tmux attach-session -t multiagent     # Connect to give commands
 ```
 
 **Debug Mode (manual control):**
 ```bash
-./shutsujin_departure.sh -s       # Create sessions only
+./shutsujin_departure.sh -s       # Create session only
 
 # Manually start Claude Code on specific agents
-tmux send-keys -t shogun:0 'claude --dangerously-skip-permissions' Enter
-tmux send-keys -t multiagent:0.0 'claude --dangerously-skip-permissions' Enter
+tmux send-keys -t multiagent:0.0 'claude --dangerously-skip-permissions' Enter  # Shogun
+tmux send-keys -t multiagent:0.1 'claude --dangerously-skip-permissions' Enter  # Samurai 1
 ```
 
 **Restart After Crash:**
 ```bash
-# Kill existing sessions
-tmux kill-session -t shogun
+# Kill existing session
 tmux kill-session -t multiagent
 
 # Start fresh
@@ -649,15 +646,15 @@ multi-agent-shogun/
 │  └────────────────────────────────────────────────────┘
 │
 ├── instructions/             # Agent instruction files
-│   ├── shogun.md             # Commander instructions
-│   ├── karo.md               # Manager instructions
-│   └── ashigaru.md           # Worker instructions
+│   ├── 1_shogun.md           # Commander instructions
+│   ├── 3_samurai.md          # Core worker instructions
+│   ├── 4_ashigaru.md         # Support worker instructions
+│   └── 5_ninja.md            # Emergency response instructions
 │
 ├── config/
 │   └── settings.yaml         # Language and other settings
 │
 ├── queue/                    # Communication files
-│   ├── shogun_to_karo.yaml   # Commands from Shogun to Karo
 │   ├── tasks/                # Individual worker task files
 │   └── reports/              # Worker reports
 │
@@ -705,7 +702,7 @@ claude --dangerously-skip-permissions --system-prompt "..."
 Check the worker's pane:
 ```bash
 tmux attach-session -t multiagent
-# Use Ctrl+B then number to switch panes
+# Use Ctrl+B then number to switch panes (0=Shogun, 1-3=Samurai, 4-5=Ashigaru, 6=Ninja)
 ```
 
 </details>
@@ -716,12 +713,12 @@ tmux attach-session -t multiagent
 
 | Command | Description |
 |---------|-------------|
-| `tmux attach -t shogun` | Connect to Shogun |
-| `tmux attach -t multiagent` | Connect to workers |
-| `Ctrl+B` then `0-8` | Switch between panes |
+| `tmux attach -t multiagent` | Connect to session |
+| `Ctrl+B` then `0-6` | Switch between panes |
 | `Ctrl+B` then `d` | Detach (leave running) |
-| `tmux kill-session -t shogun` | Stop Shogun session |
-| `tmux kill-session -t multiagent` | Stop worker sessions |
+| `tmux kill-session -t multiagent` | Stop session |
+
+Pane layout: 0=Shogun, 1-3=Samurai, 4-5=Ashigaru, 6=Ninja
 
 ---
 
