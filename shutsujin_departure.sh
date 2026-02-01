@@ -13,6 +13,15 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# セッション名生成（ディレクトリパスからUUID生成）
+# ═══════════════════════════════════════════════════════════════════════════════
+SESSION_UUID=$(echo -n "$(pwd)" | md5sum | cut -c1-8 | tr 'a-f' 'A-F')
+SESSION_NAME="multiagent-${SESSION_UUID}"
+
+# セッション名をファイルに保存
+echo "$SESSION_NAME" > .session-name
+
 # 言語設定を読み取り（デフォルト: ja）
 LANG_SETTING="ja"
 if [ -f "./config/settings.yaml" ]; then
@@ -116,8 +125,8 @@ while [[ $# -gt 0 ]]; do
             echo ""
             echo "エイリアス:"
             echo "  csst  → cd /mnt/c/tools/multi-agent-shogun && ./shutsujin_departure.sh"
-            echo "  css   → tmux attach-session -t multiagent"
-            echo "  csm   → tmux attach-session -t multiagent"
+            echo "  css   → tmux attach-session -t $SESSION_NAME"
+            echo "  csm   → tmux attach-session -t $SESSION_NAME"
             echo ""
             exit 0
             ;;
@@ -209,7 +218,7 @@ echo ""
 log_info "🧹 既存の陣を撤収中..."
 # 旧shogunセッションがあれば削除（後方互換）
 tmux kill-session -t shogun 2>/dev/null || true
-tmux kill-session -t multiagent 2>/dev/null && log_info "  └─ multiagent本陣、撤収完了" || log_info "  └─ multiagent本陣は存在せず"
+tmux kill-session -t $SESSION_NAME 2>/dev/null && log_info "  └─ ${SESSION_NAME}本陣、撤収完了" || log_info "  └─ ${SESSION_NAME}本陣は存在せず"
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # STEP 1.5: 前回記録のバックアップ（内容がある場合のみ）
@@ -428,18 +437,18 @@ fi
 
 log_war "🏯 全軍の陣を構築中（将軍 + 実働部隊6名）..."
 
-# multiagentセッション作成
-if ! tmux new-session -d -s multiagent -n "battlefield" 2>/dev/null; then
+# セッション作成
+if ! tmux new-session -d -s $SESSION_NAME -n "battlefield" 2>/dev/null; then
     echo ""
     echo "  ╔════════════════════════════════════════════════════════════╗"
-    echo "  ║  [ERROR] Failed to create tmux session 'multiagent'      ║"
-    echo "  ║  tmux セッション 'multiagent' の作成に失敗しました       ║"
+    echo "  ║  [ERROR] Failed to create tmux session                   ║"
+    echo "  ║  tmux セッション '${SESSION_NAME}' の作成に失敗         ║"
     echo "  ╠════════════════════════════════════════════════════════════╣"
     echo "  ║  An existing session may be running.                     ║"
     echo "  ║  既存セッションが残っている可能性があります              ║"
     echo "  ║                                                          ║"
     echo "  ║  Check: tmux ls                                          ║"
-    echo "  ║  Kill:  tmux kill-session -t multiagent                  ║"
+    echo "  ║  Kill:  tmux kill-session -t $SESSION_NAME               ║"
     echo "  ╚════════════════════════════════════════════════════════════╝"
     echo ""
     exit 1
@@ -460,18 +469,18 @@ tmux set-option -g pane-border-format '#{pane_index}: #{?#{==:#{pane_index},0},d
 # +------------+------------+----------+----------+----------+
 
 # Step 1: 5列均等に分割（各20%）
-tmux split-window -h -t "multiagent:0" -p 80    # dash 20% | 残り 80%
-tmux split-window -h -t "multiagent:0.1" -p 75  # 将軍 20% | 残り 60%
-tmux split-window -h -t "multiagent:0.2" -p 67  # 列3 20% | 残り 40%
-tmux split-window -h -t "multiagent:0.3" -p 50  # 列4 20% | 列5 20%
+tmux split-window -h -t "${SESSION_NAME}:0" -p 80    # dash 20% | 残り 80%
+tmux split-window -h -t "${SESSION_NAME}:0.1" -p 75  # 将軍 20% | 残り 60%
+tmux split-window -h -t "${SESSION_NAME}:0.2" -p 67  # 列3 20% | 残り 40%
+tmux split-window -h -t "${SESSION_NAME}:0.3" -p 50  # 列4 20% | 列5 20%
 # 現在: 0=dashboard, 1=将軍, 2=列3, 3=列4, 4=列5
 
 # Step 2: 右3列（pane 2,3,4）を上下分割
-tmux split-window -v -t "multiagent:0.2" -p 50  # 列3 → 侍1(2) | 足軽1(3)
+tmux split-window -v -t "${SESSION_NAME}:0.2" -p 50  # 列3 → 侍1(2) | 足軽1(3)
 # 現在: 0=dashboard, 1=将軍, 2=侍1, 3=足軽1, 4=列4, 5=列5
-tmux split-window -v -t "multiagent:0.4" -p 50  # 列4 → 侍2(4) | 足軽2(5)
+tmux split-window -v -t "${SESSION_NAME}:0.4" -p 50  # 列4 → 侍2(4) | 足軽2(5)
 # 現在: 0=dashboard, 1=将軍, 2=侍1, 3=足軽1, 4=侍2, 5=足軽2, 6=列5
-tmux split-window -v -t "multiagent:0.6" -p 50  # 列5 → 侍3(6) | 忍者(7)
+tmux split-window -v -t "${SESSION_NAME}:0.6" -p 50  # 列5 → 侍3(6) | 忍者(7)
 # 最終: 0=dashboard, 1=将軍, 2=侍1, 3=足軽1, 4=侍2, 5=足軽2, 6=侍3, 7=忍者
 
 # ペインタイトルと環境変数設定（8ペイン体制）
@@ -482,18 +491,18 @@ PANE_LABELS=("dashboard" "将軍" "samurai1" "ashigaru1" "samurai2" "ashigaru2" 
 PANE_COLORS=("white" "magenta" "blue" "yellow" "blue" "yellow" "blue" "magenta")
 
 # dashboardペイン（pane 0）の設定
-tmux select-pane -t "multiagent:0.0" -T "dashboard"
-tmux send-keys -t "multiagent:0.0" "watch -n 3 -c 'cat $(pwd)/dashboard.md'" Enter
+tmux select-pane -t "${SESSION_NAME}:0.0" -T "dashboard"
+tmux send-keys -t "${SESSION_NAME}:0.0" "watch -n 3 -c 'cat $(pwd)/dashboard.md'" Enter
 
 # エージェントペイン（pane 1-7）の設定
 for i in {1..7}; do
-    tmux select-pane -t "multiagent:0.$i" -T "${PANE_TITLES[$i]}"
+    tmux select-pane -t "${SESSION_NAME}:0.$i" -T "${PANE_TITLES[$i]}"
     PROMPT_STR=$(generate_prompt "${PANE_LABELS[$i]}" "${PANE_COLORS[$i]}" "$SHELL_SETTING")
-    tmux send-keys -t "multiagent:0.$i" "cd \"$(pwd)\" && export PS1='${PROMPT_STR}' && export AGENT_ROLE='${PANE_TITLES[$i]}' && export AGENT_PANE='multiagent:0.$i' && clear" Enter
+    tmux send-keys -t "${SESSION_NAME}:0.$i" "cd \"$(pwd)\" && export PS1='${PROMPT_STR}' && export AGENT_ROLE='${PANE_TITLES[$i]}' && export AGENT_PANE='${SESSION_NAME}:0.$i' && clear" Enter
 done
 
 # 将軍ペインに背景色を設定
-tmux select-pane -t "multiagent:0.1" -P 'bg=#002b36'
+tmux select-pane -t "${SESSION_NAME}:0.1" -P 'bg=#002b36'
 
 log_success "  └─ 全軍の陣、構築完了"
 echo ""
@@ -513,8 +522,8 @@ if [ "$SETUP_ONLY" = false ]; then
     log_war "👑 全軍に Claude Code を召喚中..."
 
     # 将軍（pane 1）
-    tmux send-keys -t "multiagent:0.1" "MAX_THINKING_TOKENS=0 claude --model opus --dangerously-skip-permissions"
-    tmux send-keys -t "multiagent:0.1" Enter
+    tmux send-keys -t "${SESSION_NAME}:0.1" "MAX_THINKING_TOKENS=0 claude --model opus --dangerously-skip-permissions"
+    tmux send-keys -t "${SESSION_NAME}:0.1" Enter
     log_info "  └─ 将軍、召喚完了"
 
     # 少し待機（安定のため）
@@ -523,21 +532,21 @@ if [ "$SETUP_ONLY" = false ]; then
     # 新ペイン番号: 2=侍1, 3=足軽1, 4=侍2, 5=足軽2, 6=侍3, 7=忍者
     # 侍1-3（sonnet）- pane 2, 4, 6
     for i in 2 4 6; do
-        tmux send-keys -t "multiagent:0.$i" "claude --model sonnet --dangerously-skip-permissions"
-        tmux send-keys -t "multiagent:0.$i" Enter
+        tmux send-keys -t "${SESSION_NAME}:0.$i" "claude --model sonnet --dangerously-skip-permissions"
+        tmux send-keys -t "${SESSION_NAME}:0.$i" Enter
     done
     log_info "  └─ 侍×3（sonnet）召喚完了"
 
     # 足軽1-2（haiku）- pane 3, 5
     for i in 3 5; do
-        tmux send-keys -t "multiagent:0.$i" "claude --model haiku --dangerously-skip-permissions"
-        tmux send-keys -t "multiagent:0.$i" Enter
+        tmux send-keys -t "${SESSION_NAME}:0.$i" "claude --model haiku --dangerously-skip-permissions"
+        tmux send-keys -t "${SESSION_NAME}:0.$i" Enter
     done
     log_info "  └─ 足軽×2（haiku）召喚完了"
 
     # 忍者（opus）- pane 7
-    tmux send-keys -t "multiagent:0.7" "MAX_THINKING_TOKENS=0 claude --model opus --dangerously-skip-permissions"
-    tmux send-keys -t "multiagent:0.7" Enter
+    tmux send-keys -t "${SESSION_NAME}:0.7" "MAX_THINKING_TOKENS=0 claude --model opus --dangerously-skip-permissions"
+    tmux send-keys -t "${SESSION_NAME}:0.7" Enter
     log_info "  └─ 忍者（opus）召喚完了"
 
     log_success "✅ 全軍 Claude Code 起動完了"
@@ -618,7 +627,7 @@ NINJA_EOF
 
     # 将軍の起動を確認（最大30秒待機）
     for i in {1..30}; do
-        if tmux capture-pane -t "multiagent:0.1" -p | grep -q "bypass permissions"; then
+        if tmux capture-pane -t "${SESSION_NAME}:0.1" -p | grep -q "bypass permissions"; then
             echo "  └─ 将軍の Claude Code 起動確認完了（${i}秒）"
             break
         fi
@@ -627,9 +636,9 @@ NINJA_EOF
 
     # 将軍に指示書を読み込ませる
     log_info "  └─ 将軍に指示書を伝達中..."
-    tmux send-keys -t "multiagent:0.1" "instructions/1_shogun.md を読んで役割を理解せよ。"
+    tmux send-keys -t "${SESSION_NAME}:0.1" "instructions/1_shogun.md を読んで役割を理解せよ。"
     sleep 0.5
-    tmux send-keys -t "multiagent:0.1" Enter
+    tmux send-keys -t "${SESSION_NAME}:0.1" Enter
 
     # 起動確認メッセージのみ（指示書は読まない）
     log_success "✅ 全軍 Claude Code 起動確認完了"
@@ -652,7 +661,7 @@ echo "  ┌───────────────────────
 echo "  │  📋 布陣図 (Formation)                                   │"
 echo "  └──────────────────────────────────────────────────────────┘"
 echo ""
-echo "     【multiagentセッション】全軍統合（7ペイン）"
+echo "     【${SESSION_NAME}セッション】全軍統合（7ペイン）"
 echo "     ┌─────────────────────────────────────────┐"
 echo "     │         Pane 0: 将軍 (SHOGUN)          │"
 echo "     ├─────────────┬─────────────┬────────────┤"
@@ -675,7 +684,7 @@ if [ "$SETUP_ONLY" = true ]; then
     echo "  ┌──────────────────────────────────────────────────────────┐"
     echo "  │  # 全軍を一斉召喚                                         │"
     echo "  │  for i in {0..6}; do \\                                   │"
-    echo "  │    tmux send-keys -t multiagent:0.\$i \\                       │"
+    echo "  │    tmux send-keys -t ${SESSION_NAME}:0.\$i \\                       │"
     echo "  │      'claude --dangerously-skip-permissions' Enter       │"
     echo "  │  done                                                    │"
     echo "  └──────────────────────────────────────────────────────────┘"
@@ -685,7 +694,7 @@ fi
 echo "  次のステップ:"
 echo "  ┌──────────────────────────────────────────────────────────┐"
 echo "  │  全軍にアタッチして命令を開始:                            │"
-echo "  │     tmux attach-session -t multiagent   (または: css)        │"
+echo "  │     tmux attach-session -t $SESSION_NAME   (または: css)        │"
 echo "  │                                                          │"
 echo "  │  ペイン切り替え: Ctrl+B → 矢印キー                       │"
 echo "  │                                                          │"
@@ -706,7 +715,7 @@ if [ "$OPEN_TERMINAL" = true ]; then
 
     # Windows Terminal が利用可能か確認
     if command -v wt.exe &> /dev/null; then
-        wt.exe -w 0 new-tab wsl.exe -e bash -c "tmux attach-session -t multiagent"
+        wt.exe -w 0 new-tab wsl.exe -e bash -c "tmux attach-session -t $SESSION_NAME"
         log_success "  └─ ターミナルタブ展開完了"
     else
         log_info "  └─ wt.exe が見つかりません。手動でアタッチしてください。"

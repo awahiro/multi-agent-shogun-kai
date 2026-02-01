@@ -17,6 +17,9 @@ projects/
 *.tmp
 *.bak
 
+# Session name (unique per installation)
+.session-name
+
 # Demo/analysis outputs (generated during tasks)
 demo_output/
 

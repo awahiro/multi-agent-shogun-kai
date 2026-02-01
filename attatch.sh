@@ -12,11 +12,15 @@
 #   +------------+------------+----------+----------+----------+
 #
 # 使用方法:
-#   ./attatch.sh           # multiagentセッションにアタッチ
+#   ./attatch.sh           # セッションにアタッチ
 #   ./attatch.sh -h        # ヘルプ表示
 # ═══════════════════════════════════════════════════════════════════════════════
 
 set -e
+
+# スクリプトのディレクトリに移動
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
 
 # オプション解析
 while [[ $# -gt 0 ]]; do
@@ -39,12 +43,21 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-# multiagent セッションが存在するか確認
-if ! tmux has-session -t "multiagent" 2>/dev/null; then
-    echo "【警】multiagent セッションが存在しません"
+# セッション名をファイルから読み込み
+if [ ! -f ".session-name" ]; then
+    echo "【警】.session-name が存在しません"
     echo "      先に ./shutsujin_departure.sh を実行してください"
     exit 1
 fi
 
-echo "【報】multiagent セッションにアタッチします..."
-tmux attach-session -t multiagent
+SESSION_NAME=$(cat .session-name)
+
+# セッションが存在するか確認
+if ! tmux has-session -t "$SESSION_NAME" 2>/dev/null; then
+    echo "【警】$SESSION_NAME セッションが存在しません"
+    echo "      先に ./shutsujin_departure.sh を実行してください"
+    exit 1
+fi
+
+echo "【報】$SESSION_NAME セッションにアタッチします..."
+tmux attach-session -t "$SESSION_NAME"
