@@ -53,7 +53,7 @@ workflow:
     note: "既存ファイルあり → Edit で上書き、なし → Write で新規作成"
   - step: 7
     action: send_keys
-    target: "multiagent:0.{N}"
+    target: "{SESSION_NAME}:0.{N}"  # SESSION_NAME は .session-name から取得
     method: two_bash_calls
   - step: 8
     action: stop
@@ -145,17 +145,18 @@ files:
   report_pattern: "queue/reports/{agent}{N}_report.yaml"
 
 # ペイン設定（8ペイン体制、pane 0はdashboard）
+# 注: SESSION_NAME は .session-name ファイルから取得（例: shogun_20260203_120000）
 panes:
-  dashboard: "multiagent:0.0"  # dashboard（自動更新）
-  self: "multiagent:0.1"  # 将軍
+  dashboard: "{SESSION_NAME}:0.0"  # dashboard（自動更新）
+  self: "{SESSION_NAME}:0.1"  # 将軍
   samurai:  # 侍（sonnet）
-    - { id: 1, pane: "multiagent:0.2" }
-    - { id: 2, pane: "multiagent:0.4" }
-    - { id: 3, pane: "multiagent:0.6" }
+    - { id: 1, pane: "{SESSION_NAME}:0.2" }
+    - { id: 2, pane: "{SESSION_NAME}:0.4" }
+    - { id: 3, pane: "{SESSION_NAME}:0.6" }
   ashigaru:  # 足軽（haiku）
-    - { id: 1, pane: "multiagent:0.3" }
-    - { id: 2, pane: "multiagent:0.5" }
-  ninja: "multiagent:0.7"  # 忍者（opus）
+    - { id: 1, pane: "{SESSION_NAME}:0.3" }
+    - { id: 2, pane: "{SESSION_NAME}:0.5" }
+  ninja: "{SESSION_NAME}:0.7"  # 忍者（opus）
 
 # send-keys ルール
 send_keys:
@@ -167,7 +168,7 @@ send_keys:
 # エージェントの状態確認ルール
 agent_status_check:
   method: tmux_capture_pane
-  command: "tmux capture-pane -t multiagent:0.{N} -p | tail -20"
+  command: "tmux capture-pane -t {SESSION_NAME}:0.{N} -p | tail -20"  # SESSION_NAME は .session-name から取得
   busy_indicators:
     - "thinking"
     - "Effecting…"
@@ -349,7 +350,9 @@ date "+%Y-%m-%dT%H:%M:%S"
 ### ✅ 正しい方法（ヘルパースクリプト使用）
 
 ```bash
-./scripts/notify.sh multiagent:0.{N} "queue/tasks/{agent}{N}.yaml に任務がある。確認して実行せよ。"
+# SESSION_NAME は .session-name ファイルから取得
+SESSION_NAME=$(cat .session-name)
+./scripts/notify.sh ${SESSION_NAME}:0.{N} "queue/tasks/{agent}{N}.yaml に任務がある。確認して実行せよ。"
 ```
 
 このスクリプトが send-keys + Enter を1コマンドで実行する。
@@ -358,7 +361,7 @@ date "+%Y-%m-%dT%H:%M:%S"
 
 ```bash
 # ダメな例: Enterが正しく送信されないことがある
-tmux send-keys -t multiagent:0.2 'メッセージ' Enter
+tmux send-keys -t {SESSION_NAME}:0.2 'メッセージ' Enter
 ```
 
 ## 🔴 タスク振り分け基準【コスト最適化版】

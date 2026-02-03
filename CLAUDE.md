@@ -55,11 +55,12 @@ tools/converter/main.py
 コンパクション後は作業前に必ず以下を実行せよ：
 
 1. **自分の位置と役割を確認**: `echo $AGENT_PANE` と `echo $AGENT_ROLE` （起動時に設定済み）
-   - `multiagent:0.0` → dashboard（自動更新表示）
-   - `multiagent:0.1` → 将軍（タスク管理も担当）
-   - `multiagent:0.2`, `0.4`, `0.6` → 侍1～3（役割: `echo $AGENT_ROLE`）
-   - `multiagent:0.3`, `0.5` → 足軽1～2（役割: `echo $AGENT_ROLE`）
-   - `multiagent:0.7` → 忍者（役割: `echo $AGENT_ROLE`）
+   - セッション名は `.session-name` ファイルで確認: `cat .session-name`
+   - `{SESSION_NAME}:0.0` → dashboard（自動更新表示）
+   - `{SESSION_NAME}:0.1` → 将軍（タスク管理も担当）
+   - `{SESSION_NAME}:0.2`, `0.4`, `0.6` → 侍1～3（役割: `echo $AGENT_ROLE`）
+   - `{SESSION_NAME}:0.3`, `0.5` → 足軽1～2（役割: `echo $AGENT_ROLE`）
+   - `{SESSION_NAME}:0.7` → 忍者（役割: `echo $AGENT_ROLE`）
 2. **対応する instructions を読む**:
    - 将軍 → instructions/1_shogun.md
    - 侍 → instructions/3_samurai.md
@@ -101,8 +102,9 @@ summaryの「次のステップ」を見てすぐ作業してはならぬ。ま�
 - 指示・報告内容はYAMLファイルに書く
 - 通知は `scripts/notify.sh` で相手を起こす：
   ```bash
-  ./scripts/notify.sh multiagent:0.1 "メッセージ内容"
+  ./scripts/notify.sh {SESSION_NAME}:0.1 "メッセージ内容"
   ```
+  ※ {SESSION_NAME} は `cat .session-name` で確認
 - このスクリプトが send-keys + Enter を1コマンドで実行する
 - **注意**: 直接 `tmux send-keys` を使うと Enter が正しく送信されないことがある
 
@@ -285,7 +287,8 @@ MCPツールは遅延ロード方式。使用前に必ず `ToolSearch` で検索
 - 実働部隊からの報告を受けたらこれらを確認
 
 ### 4. エージェントの状態確認
-- 指示前にエージェントが処理中か確認: `tmux capture-pane -t multiagent:0.{N} -p | tail -20`
+- 指示前にエージェントが処理中か確認: `tmux capture-pane -t {SESSION_NAME}:0.{N} -p | tail -20`
+  ※ {SESSION_NAME} は `cat .session-name` で確認
 - "thinking", "Effecting…" 等が表示中なら待機
 
 ### 5. スクリーンショットの場所

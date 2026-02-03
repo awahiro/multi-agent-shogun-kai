@@ -540,7 +540,7 @@ if [ -f "$BASHRC_FILE" ]; then
     fi
 
     # csm alias (家老・足軽ウィンドウの起動)
-    EXPECTED_CSM="alias csm='tmux attach-session -t multiagent'"
+    EXPECTED_CSM="alias csm='tmux attach-session -t \$(cat .session-name)'"
     if ! grep -q "alias csm=" "$BASHRC_FILE" 2>/dev/null; then
         if [ "$ALIAS_ADDED" = false ]; then
             echo "" >> "$BASHRC_FILE"

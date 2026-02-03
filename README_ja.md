@@ -252,7 +252,7 @@ tmuxセッションが作成されます：
 新しいターミナルを開いて将軍に接続：
 
 ```bash
-tmux attach-session -t multiagent
+tmux attach-session -t $(cat .session-name)
 ```
 
 ### Step 2: 最初の命令を出す
@@ -607,22 +607,28 @@ language: en   # 日本語 + 英訳併記
 **通常の毎日の使用：**
 ```bash
 ./start.sh          # 全て起動
-tmux attach-session -t multiagent     # 接続してコマンドを出す
+tmux attach-session -t $(cat .session-name)     # 接続してコマンドを出す
 ```
 
 **デバッグモード（手動制御）：**
 ```bash
 ./start.sh -s       # セッションのみ作成
 
+# セッション名を取得
+SESSION_NAME=$(cat .session-name)
+
 # 特定のエージェントでClaude Codeを手動起動
-tmux send-keys -t multiagent:0.0 'claude --dangerously-skip-permissions' Enter
-tmux send-keys -t multiagent:0.1 'claude --dangerously-skip-permissions' Enter
+tmux send-keys -t ${SESSION_NAME}:0.0 'claude --dangerously-skip-permissions' Enter
+tmux send-keys -t ${SESSION_NAME}:0.1 'claude --dangerously-skip-permissions' Enter
 ```
 
 **クラッシュ後の再起動：**
 ```bash
+# セッション名を取得
+SESSION_NAME=$(cat .session-name)
+
 # 既存セッションを終了
-tmux kill-session -t multiagent
+tmux kill-session -t $SESSION_NAME
 
 # 新しく起動
 ./start.sh
@@ -716,7 +722,7 @@ claude --dangerously-skip-permissions --system-prompt "..."
 
 ワーカーのペインを確認：
 ```bash
-tmux attach-session -t multiagent
+tmux attach-session -t $(cat .session-name)
 # Ctrl+B → 矢印キー でペインを切り替え
 ```
 
@@ -728,10 +734,10 @@ tmux attach-session -t multiagent
 
 | コマンド | 説明 |
 |----------|------|
-| `tmux attach -t multiagent` | 全軍に接続 |
+| `tmux attach -t $(cat .session-name)` | 全軍に接続 |
 | `Ctrl+B` → 矢印キー | ペイン間を切り替え |
 | `Ctrl+B` の後 `d` | デタッチ（実行継続） |
-| `tmux kill-session -t multiagent` | セッションを停止 |
+| `tmux kill-session -t $(cat .session-name)` | セッションを停止 |
 
 ---
 

@@ -23,8 +23,11 @@
 # システムを起動
 ./start.sh
 
+# セッション名を取得
+SESSION_NAME=$(cat .session-name)
+
 # 各エージェントのペイン確認
-tmux list-panes -t multiagent
+tmux list-panes -t $SESSION_NAME
 # 期待: 7ペイン (0=将軍, 1-3=侍, 4-5=足軽, 6=忍者)
 ```
 
@@ -32,8 +35,11 @@ tmux list-panes -t multiagent
 
 #### 将軍→実働部隊の通信テスト
 ```bash
+# セッション名を取得
+SESSION_NAME=$(cat .session-name)
+
 # 将軍セッションにアタッチ
-tmux attach-session -t multiagent
+tmux attach-session -t $SESSION_NAME
 
 # 将軍からタスクファイルを作成（将軍のClaude内で）
 cat > queue/tasks/3_samurai1.yaml << EOF
@@ -46,18 +52,21 @@ task:
 EOF
 
 # 侍1に通知（2回に分ける）
-tmux send-keys -t multiagent:0.1 'queue/tasks/3_samurai1.yaml に新しいタスクがある。確認して実行せよ。'
-tmux send-keys -t multiagent:0.1 Enter
+tmux send-keys -t ${SESSION_NAME}:0.1 'queue/tasks/3_samurai1.yaml に新しいタスクがある。確認して実行せよ。'
+tmux send-keys -t ${SESSION_NAME}:0.1 Enter
 ```
 
 #### 実働部隊→将軍の報告テスト
 ```bash
+# セッション名を取得
+SESSION_NAME=$(cat .session-name)
+
 # 侍が作業完了後、以下が実行されるか確認：
 # 1. 報告ファイル更新
 cat queue/reports/3_samurai1_report.yaml
 
 # 2. 将軍への通知が送信されたか
-tmux capture-pane -t multiagent:0.0 -p | grep "任務完了"
+tmux capture-pane -t ${SESSION_NAME}:0.0 -p | grep "任務完了"
 
 # 3. dashboard.md が将軍により更新されたか
 cat dashboard.md | grep "戦果"
@@ -79,10 +88,13 @@ cat dashboard.md | grep "戦果"
 
 ### 問題: タスクが届かない
 ```bash
+# セッション名を取得
+SESSION_NAME=$(cat .session-name)
+
 # 手動でタスク通知を再送信
-tmux send-keys -t multiagent:0.1 'queue/tasks/3_samurai1.yaml を確認せよ。'
+tmux send-keys -t ${SESSION_NAME}:0.1 'queue/tasks/3_samurai1.yaml を確認せよ。'
 sleep 1
-tmux send-keys -t multiagent:0.1 Enter
+tmux send-keys -t ${SESSION_NAME}:0.1 Enter
 ```
 
 ### 問題: 報告が届かない
@@ -97,12 +109,15 @@ ls -la dashboard.md
 
 ### 問題: send-keysが効かない
 ```bash
+# セッション名を取得
+SESSION_NAME=$(cat .session-name)
+
 # tmuxセッションの状態確認
 tmux list-sessions
-tmux list-panes -t multiagent
+tmux list-panes -t $SESSION_NAME
 
 # ペインが存在するか確認
-tmux capture-pane -t multiagent:0.1 -p | tail -5
+tmux capture-pane -t ${SESSION_NAME}:0.1 -p | tail -5
 ```
 
 ## 検証項目チェックリスト
@@ -111,7 +126,7 @@ tmux capture-pane -t multiagent:0.1 -p | tail -5
 - [ ] 将軍→実働部隊のタスク割り当てが届く
 - [ ] 実働部隊→将軍の完了報告が届く
 - [ ] dashboard.mdが将軍により更新される
-- [ ] 殿（multiagent:0.0ペイン）の入力が妨げられない
+- [ ] 殿（{SESSION_NAME}:0.0ペイン）の入力が妨げられない
 
 ## ペイン構成
 

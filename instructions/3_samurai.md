@@ -186,17 +186,18 @@ files:
   ninja_task: "queue/tasks/7_ninja.yaml"
 
 # ペイン設定（8ペイン体制、pane 0はdashboard）
+# 注: SESSION_NAME は .session-name ファイルから取得（例: cat .session-name）
 panes:
-  dashboard: multiagent:0.0  # dashboard（自動更新）
-  shogun: multiagent:0.1  # 将軍
+  dashboard: "{SESSION_NAME}:0.0"  # dashboard（自動更新）
+  shogun: "{SESSION_NAME}:0.1"  # 将軍
   self_options:
-    - samurai1: multiagent:0.2
-    - samurai2: multiagent:0.4
-    - samurai3: multiagent:0.6
+    - samurai1: "{SESSION_NAME}:0.2"
+    - samurai2: "{SESSION_NAME}:0.4"
+    - samurai3: "{SESSION_NAME}:0.6"
   ashigaru:
-    - ashigaru1: multiagent:0.3
-    - ashigaru2: multiagent:0.5
-  ninja: multiagent:0.7
+    - ashigaru1: "{SESSION_NAME}:0.3"
+    - ashigaru2: "{SESSION_NAME}:0.5"
+  ninja: "{SESSION_NAME}:0.7"
 
 # ペルソナ
 persona:
@@ -220,13 +221,16 @@ persona:
 ### ステップ1: 自分の番号を確認
 ```bash
 # 自分のペイン番号と役割を確認（起動時に設定された環境変数を使用）
-echo "$AGENT_PANE"  # 例: multiagent:0.2
+echo "$AGENT_PANE"  # 例: {SESSION_NAME}:0.2
 echo "$AGENT_ROLE"  # 例: 侍1
 
+# セッション名の確認
+cat .session-name  # 例: shogun_20260203_120000
+
 # ペイン番号と役割の対応
-# multiagent:0.2 → 侍1号
-# multiagent:0.4 → 侍2号
-# multiagent:0.6 → 侍3号
+# {SESSION_NAME}:0.2 → 侍1号
+# {SESSION_NAME}:0.4 → 侍2号
+# {SESSION_NAME}:0.6 → 侍3号
 ```
 
 ### ステップ2: 初期化状態を確認
@@ -356,7 +360,8 @@ sonnetの力を最大限に活かし、確実な成果を上げよ。
 
 ```bash
 # 🔴 このコマンドを必ず実行せよ！通知なしでは将軍に報告が届かぬ！
-./scripts/notify.sh multiagent:0.1 "任務完了。報告書を更新した。"
+SESSION_NAME=$(cat .session-name)
+./scripts/notify.sh ${SESSION_NAME}:0.1 "任務完了。報告書を更新した。"
 ```
 
 **警告**: 通知を忘れると将軍はタスク完了を知る術がなく、システムが停止する。
@@ -382,10 +387,11 @@ skill_candidate: true/false  # スキル化候補か
 
 ## コンパクション復帰手順
 
-1. 自分の位置を確認: `echo $AGENT_PANE` （起動時に設定済み、例: multiagent:0.2）
-   - `multiagent:0.2` → 侍1号
-   - `multiagent:0.4` → 侍2号
-   - `multiagent:0.6` → 侍3号
+1. 自分の位置を確認: `echo $AGENT_PANE` （起動時に設定済み、例: {SESSION_NAME}:0.2）
+   - セッション名確認: `cat .session-name`
+   - `{SESSION_NAME}:0.2` → 侍1号
+   - `{SESSION_NAME}:0.4` → 侍2号
+   - `{SESSION_NAME}:0.6` → 侍3号
 2. queue/tasks/3_samurai{1-3}.yaml で自分の任務確認
 3. 進行中タスクの継続または新規着手
 4. 設計・調査タスクの場合は、従来の学者・軍師の責務を引き継いだことを認識

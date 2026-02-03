@@ -254,7 +254,7 @@ After running `start.sh`, all agents automatically load their instructions and a
 Open a new terminal and connect to the Shogun:
 
 ```bash
-tmux attach-session -t multiagent
+tmux attach-session -t $(cat .session-name)
 ```
 
 ### Step 2: Give Your First Order
@@ -606,22 +606,28 @@ language: en   # Japanese + English translation
 **Normal Daily Usage:**
 ```bash
 ./start.sh          # Start everything
-tmux attach-session -t multiagent     # Connect to give commands
+tmux attach-session -t $(cat .session-name)     # Connect to give commands
 ```
 
 **Debug Mode (manual control):**
 ```bash
 ./start.sh -s       # Create session only
 
+# Get session name
+SESSION_NAME=$(cat .session-name)
+
 # Manually start Claude Code on specific agents
-tmux send-keys -t multiagent:0.0 'claude --dangerously-skip-permissions' Enter  # Shogun
-tmux send-keys -t multiagent:0.1 'claude --dangerously-skip-permissions' Enter  # Samurai 1
+tmux send-keys -t ${SESSION_NAME}:0.0 'claude --dangerously-skip-permissions' Enter  # Shogun
+tmux send-keys -t ${SESSION_NAME}:0.1 'claude --dangerously-skip-permissions' Enter  # Samurai 1
 ```
 
 **Restart After Crash:**
 ```bash
+# Get session name
+SESSION_NAME=$(cat .session-name)
+
 # Kill existing session
-tmux kill-session -t multiagent
+tmux kill-session -t $SESSION_NAME
 
 # Start fresh
 ./start.sh
@@ -701,7 +707,7 @@ claude --dangerously-skip-permissions --system-prompt "..."
 
 Check the worker's pane:
 ```bash
-tmux attach-session -t multiagent
+tmux attach-session -t $(cat .session-name)
 # Use Ctrl+B then number to switch panes (0=Shogun, 1-3=Samurai, 4-5=Ashigaru, 6=Ninja)
 ```
 
@@ -713,10 +719,10 @@ tmux attach-session -t multiagent
 
 | Command | Description |
 |---------|-------------|
-| `tmux attach -t multiagent` | Connect to session |
+| `tmux attach -t $(cat .session-name)` | Connect to session |
 | `Ctrl+B` then `0-6` | Switch between panes |
 | `Ctrl+B` then `d` | Detach (leave running) |
-| `tmux kill-session -t multiagent` | Stop session |
+| `tmux kill-session -t $(cat .session-name)` | Stop session |
 
 Pane layout: 0=Shogun, 1-3=Samurai, 4-5=Ashigaru, 6=Ninja
 

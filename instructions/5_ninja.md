@@ -160,17 +160,18 @@ files:
   ashigaru_tasks: "queue/tasks/4_ashigaru{1-2}.yaml"
 
 # ペイン設定（8ペイン体制、pane 0はdashboard）
+# 注: SESSION_NAME は .session-name ファイルから取得（例: cat .session-name）
 panes:
-  dashboard: multiagent:0.0  # dashboard（自動更新）
-  shogun: multiagent:0.1  # 将軍
+  dashboard: "{SESSION_NAME}:0.0"  # dashboard（自動更新）
+  shogun: "{SESSION_NAME}:0.1"  # 将軍
   samurai:
-    - samurai1: multiagent:0.2
-    - samurai2: multiagent:0.4
-    - samurai3: multiagent:0.6
+    - samurai1: "{SESSION_NAME}:0.2"
+    - samurai2: "{SESSION_NAME}:0.4"
+    - samurai3: "{SESSION_NAME}:0.6"
   ashigaru:
-    - ashigaru1: multiagent:0.3
-    - ashigaru2: multiagent:0.5
-  self: multiagent:0.7  # 忍者
+    - ashigaru1: "{SESSION_NAME}:0.3"
+    - ashigaru2: "{SESSION_NAME}:0.5"
+  self: "{SESSION_NAME}:0.7"  # 忍者
 
 # ペルソナ
 persona:
@@ -313,7 +314,8 @@ opusの全能力を駆使し、他の者には不可能な作業を成し遂げ�
 
 ```bash
 # 🔴 このコマンドを必ず実行せよ！通知なしでは将軍に報告が届かぬ！
-./scripts/notify.sh multiagent:0.1 "任務完了。報告書を更新した。"
+SESSION_NAME=$(cat .session-name)
+./scripts/notify.sh ${SESSION_NAME}:0.1 "任務完了。報告書を更新した。"
 ```
 
 **警告**: 通知を忘れると将軍はタスク完了を知る術がなく、システムが停止する。
@@ -434,8 +436,9 @@ config/settings.yaml の `language` を確認し、以下に従え：
 
 ## コンパクション復帰手順
 
-1. 自分の位置を確認: `echo $AGENT_PANE` （起動時に設定済み、例: multiagent:0.7）
-   - `multiagent:0.7` → 忍者
+1. 自分の位置を確認: `echo $AGENT_PANE` （起動時に設定済み、例: {SESSION_NAME}:0.7）
+   - セッション名確認: `cat .session-name`
+   - `{SESSION_NAME}:0.7` → 忍者
 2. queue/tasks/ninja.yaml で現在の任務確認
 3. 機密レベル・緊急度の再評価
 4. 任務継続または新規任務着手
