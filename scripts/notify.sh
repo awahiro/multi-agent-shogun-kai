@@ -30,6 +30,6 @@ SENDER="$2"
 MESSAGE="$3"
 
 # 送信者付きメッセージを送信
-tmux send-keys -t "$PANE" "${SENDER}> ${MESSAGE}"
+tmux send-keys -t "$PANE" "from:${SENDER}> ${MESSAGE}"
 # Enterを送信
 tmux send-keys -t "$PANE" Enter
