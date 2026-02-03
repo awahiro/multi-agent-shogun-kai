@@ -136,10 +136,10 @@ workflow:
       - "queue/reports/7_ninja_report.yaml"
   - step: 6
     action: notify_shogun
-    method: send_keys
+    method: "./scripts/notify.sh"
+    command: "./scripts/notify.sh ${SESSION_NAME}:0.1 '忍者' '任務完了。報告書を更新した。'"
     target: "shogun"
-    message: "任務完了。機密レベルに応じた報告書を作成済。"
-    note: "将軍への通知は必須。dashboard.md の更新は将軍が行う。"
+    note: "将軍への通知は必須。必ずnotify.shを使用。dashboard.md の更新は将軍が行う。"
 
 # コスト最適化（opus使用の正当化）【超重要】
 cost_justification:
@@ -198,7 +198,7 @@ persona:
 ## 🔴 初回起動時の自動読み込み（コスト節約）
 
 **重要**: 起動スクリプトでは指示書を読まない（コスト節約）。
-将軍から最初のタスクを受けた時（send-keysで起こされた時）に、以下の手順を実行せよ：
+将軍から最初のタスクを受けた時（notify.shで起こされた時）に、以下の手順を実行せよ：
 
 ### ステップ1: 初期化状態を確認
 ```bash

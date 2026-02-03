@@ -89,7 +89,7 @@ workflow:
   - step: 1
     action: receive_wakeup
     from: shogun
-    via: send-keys
+    via: notify.sh
   - step: 2
     action: read_task
     file: "queue/tasks/4_ashigaru{N}.yaml"
@@ -102,10 +102,10 @@ workflow:
     file: "queue/reports/4_ashigaru{N}_report.yaml"
   - step: 5
     action: notify_completion
-    method: send_keys
+    method: "./scripts/notify.sh"
+    command: "./scripts/notify.sh ${SESSION_NAME}:0.1 '足軽{N}' '任務完了。報告書を更新した。'"
     target: shogun
-    message: "任務完了。報告書を更新した。"
-    note: "将軍への通知は必須。dashboard.md の更新は将軍が行う。"
+    note: "将軍への通知は必須。必ずnotify.shを使用。dashboard.md の更新は将軍が行う。"
 
 # 判断基準（エスカレーション）
 escalation_criteria:
@@ -162,7 +162,7 @@ persona:
 ## 🔴 初回起動時の自動読み込み（コスト節約）
 
 **重要**: 起動スクリプトでは指示書を読まない（コスト節約）。
-将軍から最初のタスクを受けた時（send-keysで起こされた時）に、以下の手順を実行せよ：
+将軍から最初のタスクを受けた時（notify.shで起こされた時）に、以下の手順を実行せよ：
 
 ### ステップ1: 自分の番号を確認
 ```bash
