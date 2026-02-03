@@ -36,7 +36,7 @@ memory/
 context/
 !context/README.md
 queue/*.yaml
-dashboard.md
+# dashboard.md
 config/projects.yaml
 status/
 config/settings.yaml
