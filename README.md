@@ -115,7 +115,7 @@ cd /mnt/c/tools/multi-agent-shogun
 ✅ **Deploy!**
 
 ```bash
-./shutsujin_departure.sh
+./start.sh
 ```
 
 </td>
@@ -128,7 +128,7 @@ Open **Ubuntu terminal** (WSL) and run:
 
 ```bash
 cd /mnt/c/tools/multi-agent-shogun
-./shutsujin_departure.sh
+./start.sh
 ```
 
 ---
@@ -154,7 +154,7 @@ chmod +x *.sh
 
 ```bash
 cd ~/multi-agent-shogun
-./shutsujin_departure.sh
+./start.sh
 ```
 
 </details>
@@ -193,14 +193,14 @@ Then restart your computer and run `install.bat` again.
 |--------|---------|-------------|
 | `install.bat` | Windows: WSL2 + Ubuntu setup | First time only |
 | `first_setup.sh` | Installs tmux, Node.js, Claude Code CLI + configures Memory MCP | First time only |
-| `shutsujin_departure.sh` | Creates tmux sessions + starts Claude Code + loads instructions | Every day |
+| `start.sh` | Creates tmux sessions + starts Claude Code + loads instructions | Every day |
 
 ### What `install.bat` does automatically:
 - ✅ Checks if WSL2 is installed (auto-install if missing)
 - ✅ Checks if Ubuntu is installed (auto-install if missing)
 - ✅ Guides you to the next steps (`first_setup.sh`)
 
-### What `shutsujin_departure.sh` does:
+### What `start.sh` does:
 - ✅ Creates tmux session (shogun: 7 panes integrated)
 - ✅ Launches Claude Code on all agents
 - ✅ Automatically loads instruction files for each agent
@@ -249,7 +249,7 @@ You'll see tmux session created:
 
 ### Step 1: Connect to Shogun
 
-After running `shutsujin_departure.sh`, all agents automatically load their instructions and are ready to work.
+After running `start.sh`, all agents automatically load their instructions and are ready to work.
 
 Open a new terminal and connect to the Shogun:
 
@@ -564,7 +564,7 @@ language: en   # Japanese + English translation
 │                      DAILY STARTUP (Run Every Day)                  │
 ├─────────────────────────────────────────────────────────────────────┤
 │                                                                     │
-│  shutsujin_departure.sh                                             │
+│  start.sh                                             │
 │      │                                                              │
 │      ├──▶ Create tmux session                                       │
 │      │         • "multiagent" session (7 panes integrated)              │
@@ -579,23 +579,23 @@ language: en   # Japanese + English translation
 </details>
 
 <details>
-<summary><b>shutsujin_departure.sh Options</b> (Click to expand)</summary>
+<summary><b>start.sh Options</b> (Click to expand)</summary>
 
 ```bash
 # Default: Full startup (tmux sessions + Claude Code launch)
-./shutsujin_departure.sh
+./start.sh
 
 # Session setup only (without launching Claude Code)
-./shutsujin_departure.sh -s
-./shutsujin_departure.sh --setup-only
+./start.sh -s
+./start.sh --setup-only
 
 # Full startup + open Windows Terminal tabs
-./shutsujin_departure.sh -t
-./shutsujin_departure.sh --terminal
+./start.sh -t
+./start.sh --terminal
 
 # Show help
-./shutsujin_departure.sh -h
-./shutsujin_departure.sh --help
+./start.sh -h
+./start.sh --help
 ```
 
 </details>
@@ -605,13 +605,13 @@ language: en   # Japanese + English translation
 
 **Normal Daily Usage:**
 ```bash
-./shutsujin_departure.sh          # Start everything
+./start.sh          # Start everything
 tmux attach-session -t multiagent     # Connect to give commands
 ```
 
 **Debug Mode (manual control):**
 ```bash
-./shutsujin_departure.sh -s       # Create session only
+./start.sh -s       # Create session only
 
 # Manually start Claude Code on specific agents
 tmux send-keys -t multiagent:0.0 'claude --dangerously-skip-permissions' Enter  # Shogun
@@ -624,7 +624,7 @@ tmux send-keys -t multiagent:0.1 'claude --dangerously-skip-permissions' Enter  
 tmux kill-session -t multiagent
 
 # Start fresh
-./shutsujin_departure.sh
+./start.sh
 ```
 
 </details>
@@ -642,7 +642,7 @@ multi-agent-shogun/
 │  ┌─────────────────── SETUP SCRIPTS ───────────────────┐
 ├── install.bat               # Windows: First-time setup
 ├── first_setup.sh            # Ubuntu/Mac: First-time setup
-├── shutsujin_departure.sh    # Daily startup (auto-loads instructions)
+├── start.sh    # Daily startup (auto-loads instructions)
 │  └────────────────────────────────────────────────────┘
 │
 ├── instructions/             # Agent instruction files

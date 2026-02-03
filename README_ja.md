@@ -114,7 +114,7 @@ cd /mnt/c/tools/multi-agent-shogun
 ✅ **出陣！**
 
 ```bash
-./shutsujin_departure.sh
+./start.sh
 ```
 
 </td>
@@ -127,7 +127,7 @@ cd /mnt/c/tools/multi-agent-shogun
 
 ```bash
 cd /mnt/c/tools/multi-agent-shogun
-./shutsujin_departure.sh
+./start.sh
 ```
 
 ---
@@ -153,7 +153,7 @@ chmod +x *.sh
 
 ```bash
 cd ~/multi-agent-shogun
-./shutsujin_departure.sh
+./start.sh
 ```
 
 </details>
@@ -192,14 +192,14 @@ wsl --install
 |-----------|------|---------------|
 | `install.bat` | Windows: WSL2 + Ubuntu のセットアップ | 初回のみ |
 | `first_setup.sh` | tmux、Node.js、Claude Code CLI をインストール | 初回のみ |
-| `shutsujin_departure.sh` | tmuxセッション作成 + Claude Code起動 + 指示書読み込み | 毎日 |
+| `start.sh` | tmuxセッション作成 + Claude Code起動 + 指示書読み込み | 毎日 |
 
 ### `install.bat` が自動で行うこと：
 - ✅ WSL2がインストールされているかチェック（未インストールなら案内）
 - ✅ Ubuntuがインストールされているかチェック（未インストールなら案内）
 - ✅ 次のステップ（`first_setup.sh` の実行方法）を案内
 
-### `shutsujin_departure.sh` が行うこと：
+### `start.sh` が行うこと：
 - ✅ tmuxセッションを作成（shogun: 7ペイン統合）
 - ✅ 全エージェントでClaude Codeを起動
 - ✅ 各エージェントに指示書を自動読み込み
@@ -247,7 +247,7 @@ tmuxセッションが作成されます：
 
 ### Step 1: 将軍に接続
 
-`shutsujin_departure.sh` 実行後、全エージェントが自動的に指示書を読み込み、作業準備完了となります。
+`start.sh` 実行後、全エージェントが自動的に指示書を読み込み、作業準備完了となります。
 
 新しいターミナルを開いて将軍に接続：
 
@@ -565,7 +565,7 @@ language: en   # 日本語 + 英訳併記
 │                      毎日の起動（毎日実行）                           │
 ├─────────────────────────────────────────────────────────────────────┤
 │                                                                     │
-│  shutsujin_departure.sh                                             │
+│  start.sh                                             │
 │      │                                                              │
 │      ├──▶ tmuxセッションを作成                                       │
 │      │         • "shogun"セッション（7ペイン統合）                    │
@@ -580,23 +580,23 @@ language: en   # 日本語 + 英訳併記
 </details>
 
 <details>
-<summary><b>shutsujin_departure.sh オプション</b>（クリックで展開）</summary>
+<summary><b>start.sh オプション</b>（クリックで展開）</summary>
 
 ```bash
 # デフォルト: フル起動（tmuxセッション + Claude Code起動）
-./shutsujin_departure.sh
+./start.sh
 
 # セッションセットアップのみ（Claude Code起動なし）
-./shutsujin_departure.sh -s
-./shutsujin_departure.sh --setup-only
+./start.sh -s
+./start.sh --setup-only
 
 # フル起動 + Windows Terminalタブを開く
-./shutsujin_departure.sh -t
-./shutsujin_departure.sh --terminal
+./start.sh -t
+./start.sh --terminal
 
 # ヘルプを表示
-./shutsujin_departure.sh -h
-./shutsujin_departure.sh --help
+./start.sh -h
+./start.sh --help
 ```
 
 </details>
@@ -606,13 +606,13 @@ language: en   # 日本語 + 英訳併記
 
 **通常の毎日の使用：**
 ```bash
-./shutsujin_departure.sh          # 全て起動
+./start.sh          # 全て起動
 tmux attach-session -t multiagent     # 接続してコマンドを出す
 ```
 
 **デバッグモード（手動制御）：**
 ```bash
-./shutsujin_departure.sh -s       # セッションのみ作成
+./start.sh -s       # セッションのみ作成
 
 # 特定のエージェントでClaude Codeを手動起動
 tmux send-keys -t multiagent:0.0 'claude --dangerously-skip-permissions' Enter
@@ -625,7 +625,7 @@ tmux send-keys -t multiagent:0.1 'claude --dangerously-skip-permissions' Enter
 tmux kill-session -t multiagent
 
 # 新しく起動
-./shutsujin_departure.sh
+./start.sh
 ```
 
 </details>
@@ -636,7 +636,7 @@ tmux kill-session -t multiagent
 `first_setup.sh` を実行すると、以下のエイリアスが `~/.bashrc` に自動追加されます：
 
 ```bash
-alias css='cd /mnt/c/tools/multi-agent-shogun && ./shutsujin_departure.sh'  # セットアップ+出陣
+alias css='cd /mnt/c/tools/multi-agent-shogun && ./start.sh'  # セットアップ+出陣
 alias csm='cd /mnt/c/tools/multi-agent-shogun'                              # ディレクトリ移動のみ
 ```
 
@@ -657,7 +657,7 @@ multi-agent-shogun/
 │  ┌─────────────────── セットアップスクリプト ───────────────────┐
 ├── install.bat               # Windows: 初回セットアップ
 ├── first_setup.sh            # Ubuntu/Mac: 初回セットアップ
-├── shutsujin_departure.sh    # 毎日の起動（指示書自動読み込み）
+├── start.sh    # 毎日の起動（指示書自動読み込み）
 │  └────────────────────────────────────────────────────────────┘
 │
 ├── instructions/             # エージェント指示書

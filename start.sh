@@ -3,9 +3,9 @@
 # Daily Deployment Script for Multi-Agent Orchestration System
 #
 # 使用方法:
-#   ./shutsujin_departure.sh           # 全エージェント起動（通常）
-#   ./shutsujin_departure.sh -s        # セットアップのみ（Claude起動なし）
-#   ./shutsujin_departure.sh -h        # ヘルプ表示
+#   ./start.sh           # 全エージェント起動（通常）
+#   ./start.sh -s        # セットアップのみ（Claude起動なし）
+#   ./start.sh -h        # ヘルプ表示
 
 set -e
 
@@ -107,7 +107,7 @@ while [[ $# -gt 0 ]]; do
             echo ""
             echo "🏯 multi-agent-shogun 出陣スクリプト"
             echo ""
-            echo "使用方法: ./shutsujin_departure.sh [オプション]"
+            echo "使用方法: ./start.sh [オプション]"
             echo ""
             echo "オプション:"
             echo "  -s, --setup-only    tmuxセッションのセットアップのみ（Claude起動なし）"
@@ -117,14 +117,14 @@ while [[ $# -gt 0 ]]; do
             echo "  -h, --help          このヘルプを表示"
             echo ""
             echo "例:"
-            echo "  ./shutsujin_departure.sh              # 全エージェント起動（通常の出陣）"
-            echo "  ./shutsujin_departure.sh -s           # セットアップのみ（手動でClaude起動）"
-            echo "  ./shutsujin_departure.sh -t           # 全エージェント起動 + ターミナルタブ展開"
-            echo "  ./shutsujin_departure.sh -shell bash  # bash用プロンプトで起動"
-            echo "  ./shutsujin_departure.sh -shell zsh   # zsh用プロンプトで起動"
+            echo "  ./start.sh              # 全エージェント起動（通常の出陣）"
+            echo "  ./start.sh -s           # セットアップのみ（手動でClaude起動）"
+            echo "  ./start.sh -t           # 全エージェント起動 + ターミナルタブ展開"
+            echo "  ./start.sh -shell bash  # bash用プロンプトで起動"
+            echo "  ./start.sh -shell zsh   # zsh用プロンプトで起動"
             echo ""
             echo "エイリアス:"
-            echo "  csst  → cd /mnt/c/tools/multi-agent-shogun && ./shutsujin_departure.sh"
+            echo "  csst  → cd /mnt/c/tools/multi-agent-shogun && ./start.sh"
             echo "  css   → tmux attach-session -t $SESSION_NAME"
             echo "  csm   → tmux attach-session -t $SESSION_NAME"
             echo ""
@@ -132,7 +132,7 @@ while [[ $# -gt 0 ]]; do
             ;;
         *)
             echo "不明なオプション: $1"
-            echo "./shutsujin_departure.sh -h でヘルプを表示"
+            echo "./start.sh -h でヘルプを表示"
             exit 1
             ;;
     esac
