@@ -491,9 +491,9 @@ PANE_LABELS=("dashboard" "将軍" "samurai1" "ashigaru1" "samurai2" "ashigaru2" 
 PANE_COLORS=("white" "magenta" "blue" "yellow" "blue" "yellow" "blue" "magenta")
 
 # dashboardペイン（pane 0）の設定
-# less +F で最新追従表示（Ctrl+C でスクロールモード、Shift+F で追従モードに戻る）
+# watch で自動更新表示（スクロールは Ctrl+b [ でtmux copy-mode）
 tmux select-pane -t "${SESSION_NAME}:0.0" -T "dashboard"
-tmux send-keys -t "${SESSION_NAME}:0.0" "less +F $(pwd)/dashboard.md" Enter
+tmux send-keys -t "${SESSION_NAME}:0.0" "watch -n 3 'cat $(pwd)/dashboard.md'" Enter
 
 # エージェントペイン（pane 1-7）の設定
 for i in {1..7}; do
