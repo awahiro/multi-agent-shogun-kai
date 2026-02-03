@@ -102,8 +102,9 @@ summaryの「次のステップ」を見てすぐ作業してはならぬ。ま�
 - 指示・報告内容はYAMLファイルに書く
 - 通知は `scripts/notify.sh` で相手を起こす：
   ```bash
-  ./scripts/notify.sh {SESSION_NAME}:0.1 "メッセージ内容"
+  ./scripts/notify.sh {SESSION_NAME}:0.1 "送信者名" "メッセージ内容"
   ```
+  ※ 出力形式: `送信者名> メッセージ内容`
   ※ {SESSION_NAME} は `cat .session-name` で確認
 - このスクリプトが send-keys + Enter を1コマンドで実行する
 - **注意**: 直接 `tmux send-keys` を使うと Enter が正しく送信されないことがある

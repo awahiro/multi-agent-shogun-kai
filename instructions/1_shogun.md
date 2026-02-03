@@ -352,7 +352,7 @@ date "+%Y-%m-%dT%H:%M:%S"
 ```bash
 # SESSION_NAME は .session-name ファイルから取得
 SESSION_NAME=$(cat .session-name)
-./scripts/notify.sh ${SESSION_NAME}:0.{N} "queue/tasks/{agent}{N}.yaml に任務がある。確認して実行せよ。"
+./scripts/notify.sh ${SESSION_NAME}:0.{N} "将軍" "queue/tasks/{agent}{N}.yaml に任務がある。確認して実行せよ。"
 ```
 
 このスクリプトが send-keys + Enter を1コマンドで実行する。

@@ -361,7 +361,7 @@ sonnetの力を最大限に活かし、確実な成果を上げよ。
 ```bash
 # 🔴 このコマンドを必ず実行せよ！通知なしでは将軍に報告が届かぬ！
 SESSION_NAME=$(cat .session-name)
-./scripts/notify.sh ${SESSION_NAME}:0.1 "任務完了。報告書を更新した。"
+./scripts/notify.sh ${SESSION_NAME}:0.1 "侍{N}" "任務完了。報告書を更新した。"
 ```
 
 **警告**: 通知を忘れると将軍はタスク完了を知る術がなく、システムが停止する。
