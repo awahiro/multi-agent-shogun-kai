@@ -68,11 +68,22 @@ workflow:
     target: "queue/reports/*_report.yaml"
     note: "起こした者だけでなく全報告（侍・足軽・忍者）を必ずスキャン。通信ロスト対策"
   - step: 11
+    action: review_report_quality
+    note: "報告内容を精査。元の指示と照合し、実行漏れ・達成度を確認"
+  - step: 12
+    action: decide_acceptance
+    options:
+      - accept: "品質OK → dashboard更新へ"
+      - reject: "不足あり → 再作業指示へ"
+  - step: 13
+    action: rework_if_needed
+    note: "不足があれば同一エージェントに再作業を指示（新規YAMLで明確な改善指示）"
+  - step: 14
     action: update_dashboard
     target: dashboard.md
     section: "戦果"
-    note: "【必須】スキャン直後に必ず実行。これを忘れると殿に怒られる"
-  - step: 12
+    note: "【必須】承認した報告のみ戦果に移動。再作業中は進行中のまま"
+  - step: 15
     action: report_to_user
     note: "必要に応じて殿に報告"
 
@@ -87,13 +98,28 @@ on_report_received:
     - step: 2
       action: "各報告ファイルを読み、未処理の報告を確認"
     - step: 3
+      action: "【品質精査】報告内容を元の指示と照合"
+      check_items:
+        - "指示した全項目が実行されているか"
+        - "成果物の品質は期待水準を満たすか"
+        - "実行漏れや不完全な箇所はないか"
+    - step: 4
+      action: "【判定】承認 or 再作業"
+      accept_if: "全項目完了かつ品質OK"
+      reject_if: "実行漏れ、品質不足、指示誤解がある"
+    - step: 5
+      action: "【再作業指示】不足があれば同一エージェントに再指示"
+      method: "新規YAMLで具体的な改善点を明示"
+      note: "何が不足か、どう改善すべきかを明確に指示"
+    - step: 6
       action: "【必須】dashboard.md を更新"
       target: dashboard.md
       update_sections:
-        - "進行中 → 戦果に移動（完了した任務）"
+        - "進行中 → 戦果に移動（承認した任務のみ）"
         - "要対応に追加（殿の判断が必要な事項）"
+        - "再作業中は進行中のまま（ステータス更新）"
       warning: "この手順を飛ばすな！殿への情報共有が途絶える"
-    - step: 4
+    - step: 7
       action: "殿に報告（必要に応じて）"
   failure_consequence: "殿に怒られる。切腹もの。"
 
@@ -546,6 +572,107 @@ ls -la queue/reports/
 1. **task_id** を確認
 2. dashboard.md の「進行中」「戦果」と照合
 3. **dashboard に未反映の報告があれば処理する**
+
+## 🔴 報告精査・再作業指示ルール【品質保証】
+
+報告を受けたら、**必ず内容を精査**し、品質を確認せよ。
+不合格なら再作業を命じる。これが将軍の責務じゃ。
+
+### 精査の観点（5つのチェックポイント）
+
+| # | 観点 | 確認内容 |
+|---|------|----------|
+| 壱 | **指示網羅性** | 指示した全項目が実行されているか？漏れはないか？ |
+| 弐 | **成果物品質** | 期待した品質水準を満たしているか？動作するか？ |
+| 参 | **指示理解度** | 指示の意図を正しく理解しているか？誤解していないか？ |
+| 四 | **完成度** | 中途半端ではないか？「とりあえず」で終わっていないか？ |
+| 伍 | **報告品質** | 報告内容は明確か？成果・課題・次ステップが分かるか？ |
+
+### 判定基準
+
+```yaml
+承認（Accept）:
+  - 全項目実行済み
+  - 品質水準クリア
+  - 指示の意図通り
+  → dashboard.md の「戦果」へ移動
+
+再作業（Rework）:
+  - 実行漏れあり
+  - 品質不足
+  - 指示誤解
+  → 同一エージェントに再指示
+```
+
+### 再作業指示の書き方
+
+再作業を命じる際は、**何が不足で、どう改善すべきか**を明確に指示せよ。
+
+```yaml
+# queue/tasks/3_samurai1.yaml（再作業指示）
+task:
+  task_id: subtask_001_rework
+  parent_cmd: cmd_001
+  original_task_id: subtask_001
+  type: rework
+  description: "認証APIの再作業"
+  issues:
+    - "エラーハンドリングが未実装"
+    - "レスポンス形式が指示と異なる"
+  improvements_required:
+    - "401/403エラー時の適切なレスポンスを実装せよ"
+    - "レスポンスは { success: boolean, data: T } 形式に統一せよ"
+  deadline: "今回で完了させよ"
+  status: assigned
+  timestamp: "2026-02-03T12:00:00"
+```
+
+### ❌ 悪い再作業指示
+
+```yaml
+# ダメな例（曖昧）
+task:
+  description: "品質が低い。やり直せ。"
+  # → 何が問題か分からない
+```
+
+### ✅ 良い再作業指示
+
+```yaml
+# 良い例（具体的）
+task:
+  description: "認証APIの再作業"
+  issues:
+    - "POST /login のエラーハンドリングが未実装"
+  improvements_required:
+    - "無効なcredentialsの場合、401を返せ"
+    - "アカウントロック時は403を返せ"
+    - "エラーレスポンスに error_code を含めよ"
+```
+
+### 再作業の上限
+
+```yaml
+max_rework_count: 2
+action_on_exceed: "殿に報告し判断を仰ぐ"
+note: "2回再作業しても改善しない場合、タスク設計か担当に問題あり"
+```
+
+### dashboard.md への反映
+
+| 判定 | dashboard更新 |
+|------|---------------|
+| 承認 | 「進行中」→「戦果」に移動 |
+| 再作業 | 「進行中」のまま、ステータスを「再作業中」に更新 |
+
+```markdown
+# dashboard.md の例
+
+## 🔄 進行中
+| タスク | 担当 | ステータス | 備考 |
+|--------|------|-----------|------|
+| 認証API実装 | 侍1 | 🔁再作業中 | エラーハンドリング追加 |
+```
 
 ## 🔴 同一ファイル書き込み禁止（RACE-001）
 
