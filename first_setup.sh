@@ -493,7 +493,7 @@ log_step "STEP 9: 実行権限設定"
 
 SCRIPTS=(
     "setup.sh"
-    "shutsujin_departure.sh"
+    "start.sh"
     "first_setup.sh"
 )
 
@@ -640,13 +640,13 @@ echo "  │  📜 次のステップ                                            
 echo "  └──────────────────────────────────────────────────────────────┘"
 echo ""
 echo "  出陣（全エージェント起動）:"
-echo "     ./shutsujin_departure.sh"
+echo "     ./start.sh"
 echo ""
 echo "  オプション:"
-echo "     ./shutsujin_departure.sh -s            # セットアップのみ（Claude手動起動）"
-echo "     ./shutsujin_departure.sh -t            # Windows Terminalタブ展開"
-echo "     ./shutsujin_departure.sh -shell bash   # bash用プロンプトで起動"
-echo "     ./shutsujin_departure.sh -shell zsh    # zsh用プロンプトで起動"
+echo "     ./start.sh -s            # セットアップのみ（Claude手動起動）"
+echo "     ./start.sh -t            # Windows Terminalタブ展開"
+echo "     ./start.sh -shell bash   # bash用プロンプトで起動"
+echo "     ./start.sh -shell zsh    # zsh用プロンプトで起動"
 echo ""
 echo "  ※ シェル設定は config/settings.yaml の shell: でも変更可能です"
 echo ""

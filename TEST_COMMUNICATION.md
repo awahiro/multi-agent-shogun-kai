@@ -14,14 +14,14 @@
 - `instructions/3_samurai.md` - 侍の報告手順（将軍に直接報告）
 - `instructions/4_ashigaru.md` - 足軽の報告手順（将軍に直接報告）
 - `instructions/5_ninja.md` - 忍者の報告手順（将軍に直接報告）
-- `shutsujin_departure.sh` - 7ペイン統合レイアウト
+- `start.sh` - 7ペイン統合レイアウト
 
 ## テスト手順
 
 ### 1. システム起動テスト
 ```bash
 # システムを起動
-./shutsujin_departure.sh
+./start.sh
 
 # 各エージェントのペイン確認
 tmux list-panes -t multiagent

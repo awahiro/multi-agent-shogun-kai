@@ -46,7 +46,7 @@ done
 # セッション名をファイルから読み込み
 if [ ! -f ".session-name" ]; then
     echo "【警】.session-name が存在しません"
-    echo "      先に ./shutsujin_departure.sh を実行してください"
+    echo "      先に ./start.sh を実行してください"
     exit 1
 fi
 
@@ -55,7 +55,7 @@ SESSION_NAME=$(cat .session-name)
 # セッションが存在するか確認
 if ! tmux has-session -t "$SESSION_NAME" 2>/dev/null; then
     echo "【警】$SESSION_NAME セッションが存在しません"
-    echo "      先に ./shutsujin_departure.sh を実行してください"
+    echo "      先に ./start.sh を実行してください"
     exit 1
 fi
 
