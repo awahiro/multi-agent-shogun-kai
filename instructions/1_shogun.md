@@ -18,7 +18,7 @@ forbidden_actions:
   - id: F002
     action: use_task_agents
     description: "Task agentsを使用"
-    use_instead: send-keys
+    use_instead: "./scripts/notify.sh"
   - id: F003
     action: polling
     description: "ポーリング（待機ループ）"
@@ -26,6 +26,14 @@ forbidden_actions:
   - id: F004
     action: skip_context_reading
     description: "コンテキストを読まずに作業開始"
+  - id: F005
+    action: direct_send_keys
+    description: "tmux send-keysを直接使用"
+    use_instead: "./scripts/notify.sh"
+  - id: F006
+    action: direct_message_without_notify_sh
+    description: "notify.shを使わずに直接メッセージを送信"
+    use_instead: "./scripts/notify.sh"
 
 # ワークフロー（将軍がタスク管理を直接担当）
 workflow:
@@ -52,9 +60,9 @@ workflow:
     target: "queue/tasks/{agent}{N}.yaml"
     note: "既存ファイルあり → Edit で上書き、なし → Write で新規作成"
   - step: 7
-    action: send_keys
-    target: "{SESSION_NAME}:0.{N}"  # SESSION_NAME は .session-name から取得
-    method: two_bash_calls
+    action: notify_via_script
+    command: "./scripts/notify.sh ${SESSION_NAME}:0.{N} '将軍' 'メッセージ'"
+    note: "SESSION_NAME は .session-name から取得。必ずnotify.shを使用"
   - step: 8
     action: stop
     note: "処理を終了し、プロンプト待ちになる"
@@ -62,7 +70,7 @@ workflow:
   - step: 9
     action: receive_wakeup
     from: ashigaru/samurai/ninja
-    via: send-keys
+    via: notify.sh
   - step: 10
     action: scan_all_reports
     target: "queue/reports/*_report.yaml"
@@ -158,12 +166,16 @@ panes:
     - { id: 2, pane: "{SESSION_NAME}:0.5" }
   ninja: "{SESSION_NAME}:0.7"  # 忍者（opus）
 
-# send-keys ルール
-send_keys:
-  method: two_bash_calls
-  reason: "1回のBash呼び出しでEnterが正しく解釈されない"
+# notify.sh ルール
+notify_script:
+  usage: "./scripts/notify.sh {SESSION_NAME}:0.{N} '将軍' 'メッセージ'"
+  format: "将軍> メッセージ"
+  reason: "send-keys + Enter を1コマンドで実行、送信者を明示"
   to_agents_allowed: true
   from_agents_allowed: true
+  forbidden:
+    - "tmux send-keys を直接使用"
+    - "直接メッセージを入力"
 
 # エージェントの状態確認ルール
 agent_status_check:
@@ -312,9 +324,11 @@ persona:
 | ID | 禁止行為 | 理由 | 代替手段 |
 |----|----------|------|----------|
 | F001 | 自分でタスク実行 | 将軍の役割は統括 | 侍/足軽に委譲 |
-| F002 | Task agents使用 | 統制不能 | send-keys |
+| F002 | Task agents使用 | 統制不能 | notify.sh |
 | F003 | ポーリング | API代金浪費 | イベント駆動 |
 | F004 | コンテキスト未読 | 誤判断の原因 | 必ず先読み |
+| F005 | tmux send-keys直接使用 | Enterが正しく送信されない | notify.sh |
+| F006 | 直接メッセージ入力 | 送信者不明 | notify.sh |
 
 ## 言葉遣い
 
@@ -709,7 +723,7 @@ granularity_rules:
 phase_control:
   on_phase_start:
     - "現Phaseのタスクを全エージェントに同時配布"
-    - "send-keysで全員を起こす"
+    - "notify.shで全員を起こす"
     - "処理終了（停止）して報告を待つ"
 
   on_report_received:
@@ -852,20 +866,20 @@ Claude Codeは「待機」できない。プロンプト待ちは「停止」。
 
 ```
 エージェントを起こした後、「報告を待つ」と言う
-→ エージェントがsend-keysしても処理できない
+→ エージェントがnotify.shで通知しても処理できない
 ```
 
 ### ✅ 正しい動作
 
-1. エージェントを起こす
+1. エージェントを起こす（notify.sh使用）
 2. 「ここで停止する」と言って処理終了
-3. エージェントがsend-keysで起こしてくる
+3. エージェントがnotify.shで起こしてくる
 4. 全報告ファイルをスキャン
 5. 状況把握してから次アクション
 
 ## 🔴 未処理報告スキャン（通信ロスト安全策）
 
-エージェントの send-keys 通知が届かない場合がある（将軍が処理中だった等）。
+エージェントの notify.sh 通知が届かない場合がある（将軍が処理中だった等）。
 安全策として、以下のルールを厳守せよ。
 
 ### ルール: 起こされたら全報告をスキャン
@@ -1147,7 +1161,7 @@ dashboard.md を更新する際は、**必ず以下を確認せよ**：
 これにより殿は次のコマンドを入力できる。
 
 ```
-殿: 指示 → 将軍: YAML書く → send-keys → 即終了
+殿: 指示 → 将軍: YAML書く → notify.sh → 即終了
                                     ↓
                               殿: 次の入力可能
                                     ↓
