@@ -197,6 +197,71 @@ race_condition:
   rule: "複数エージェントに同一ファイル書き込み禁止"
   action: "各自専用ファイルに分ける"
 
+# 🔴 難易度判定・段階分解ルール
+task_decomposition:
+  # 難易度レベル定義
+  difficulty_levels:
+    - level: A
+      name: "高難度"
+      assigned_to: ninja
+      criteria:
+        - "高度な専門知識が必要"
+        - "アーキテクチャ設計判断"
+        - "技術調査・選定"
+        - "複雑なロジック実装"
+        - "セキュリティ・暗号化関連"
+        - "本番環境の緊急障害"
+        - "複雑な並行処理問題"
+        - "難しいバグ修正"
+    - level: B
+      name: "中難度"
+      assigned_to: samurai
+      criteria:
+        - "ロジック設計判断"
+        - "標準的なコード記述"
+        - "バグ修正"
+        - "テストコード作成"
+        - "リファクタリング"
+        - "ドキュメント作成"
+    - level: C
+      name: "低難度"
+      assigned_to: ashigaru
+      criteria:
+        - "ファイル作成・コピー"
+        - "テキスト検索"
+        - "コマンド実行・結果収集"
+        - "データ転記"
+
+  # フェーズ分割ルール
+  phase_execution:
+    rule: "大規模タスクは必ずフェーズに分割"
+    phases:
+      - id: 0
+        name: "準備・設計"
+        typical_tasks: ["要件整理", "設計", "共通定義"]
+        execution: sequential
+      - id: 1
+        name: "基盤実装"
+        typical_tasks: ["コア機能", "共通モジュール"]
+        execution: parallel_if_no_conflict
+      - id: 2
+        name: "機能実装"
+        typical_tasks: ["個別機能", "API実装"]
+        execution: parallel
+      - id: 3
+        name: "検証・完成"
+        typical_tasks: ["テスト", "ドキュメント", "品質確認"]
+        execution: parallel
+
+  # 依存関係チェック
+  dependency_rules:
+    - rule: "共通コンポーネントは先行実装"
+      action: "Phase 0 で 1人が完成させてから展開"
+    - rule: "同一ファイル競合は順次実行"
+      action: "RACE-001 回避のため sequential"
+    - rule: "独立タスクは並列化"
+      action: "異なるファイル・異なる機能は parallel"
+
 # Memory MCP（知識グラフ記憶）
 memory:
   enabled: true
@@ -439,6 +504,250 @@ opus（15） : sonnet（3） : haiku（1）
     足軽1: 完全初心者ペルソナでUXシミュレーション
   → 理由: コード品質とUXは独立した観点。並列実行可能。
 ```
+
+## 🔴🔴🔴 難易度別タスク分解フレームワーク【段階的実行の要】🔴🔴🔴
+
+タスクは難易度と依存関係に応じて段階的に分解し、適切な順番で適切なエージェントに振れ。
+
+### 難易度判定マトリックス
+
+タスクを受けたら、まず難易度を判定せよ：
+
+| 難易度 | 担当 | 判定基準 | 例 |
+|--------|------|----------|-----|
+| **S（極難）** | 忍者 | 高度な専門知識・セキュリティ・本番障害 | 暗号化実装、脆弱性対応、緊急障害 |
+| **A（高）** | 侍 | 設計判断・複雑なロジック・技術調査 | アーキテクチャ設計、API実装、複雑なバグ修正 |
+| **B（中）** | 侍 | 標準的なコード記述・テスト作成 | 機能実装、リファクタリング、ドキュメント作成 |
+| **C（低）** | 足軽 | 定型作業・単純操作・思考不要 | ファイル作成、検索、コマンド実行、転記 |
+
+### 🔴 段階的タスク分解（フェーズ分割）
+
+大きなタスクは必ず **フェーズに分割** して実行せよ。一度に全てを振るな。
+
+```yaml
+# 段階的実行の基本パターン
+phases:
+  phase_1:
+    name: "準備フェーズ"
+    tasks:
+      - 調査・情報収集（足軽 or 侍）
+      - 設計・計画立案（侍）
+      - 環境準備（足軽）
+    wait_for_completion: true  # 完了を待つ
+
+  phase_2:
+    name: "実装フェーズ"
+    prerequisite: phase_1
+    tasks:
+      - コア機能実装（侍）
+      - 周辺機能実装（侍）
+      - データ作成（足軽）
+    parallel: true  # 並列実行可
+
+  phase_3:
+    name: "統合・検証フェーズ"
+    prerequisite: phase_2
+    tasks:
+      - 結合テスト（侍）
+      - ドキュメント整備（足軽）
+      - 品質確認（忍者 or 侍）
+```
+
+### 依存関係の判定と順序決定
+
+```yaml
+# 依存関係判定チェックリスト
+dependency_check:
+  - question: "このタスクは他の成果物に依存するか？"
+    if_yes: "依存先を先に実行（sequential）"
+    if_no: "並列実行可能（parallel）"
+
+  - question: "共通コンポーネント（型定義、共通関数等）はあるか？"
+    if_yes: "共通部分を最初に1人で完成させよ（Phase 0）"
+    if_no: "分散実行可"
+
+  - question: "同一ファイルへの書き込みが発生するか？"
+    if_yes: "順次実行（RACE-001回避）"
+    if_no: "並列実行可"
+```
+
+### 🔴 実行順序決定アルゴリズム
+
+```
+Step 1: タスク一覧を洗い出す
+Step 2: 各タスクの難易度を判定（S/A/B/C）
+Step 3: 依存関係グラフを構築
+Step 4: 依存がないタスクをPhase 1に配置
+Step 5: Phase 1に依存するタスクをPhase 2に配置
+Step 6: 以下繰り返し...
+Step 7: 各Phaseで並列実行可能なタスクを特定
+Step 8: 担当エージェントを割り当て
+```
+
+### 具体例：「ECサイトのユーザー管理機能を作れ」
+
+```yaml
+# 殿の指示を段階的に分解
+
+original_command: "ECサイトのユーザー管理機能を作れ"
+
+# === Phase 0: 設計・共通定義（順次実行）===
+phase_0:
+  name: "設計フェーズ"
+  execution: sequential
+  tasks:
+    - task_id: P0-1
+      description: "要件整理・アーキテクチャ設計"
+      assigned_to: 侍1
+      difficulty: A
+      output: "設計書・型定義"
+      
+# === Phase 1: 基盤実装（Phase 0完了後）===
+phase_1:
+  name: "基盤実装フェーズ"
+  prerequisite: phase_0
+  execution: parallel  # 並列可
+  tasks:
+    - task_id: P1-1
+      description: "ユーザーモデル・リポジトリ実装"
+      assigned_to: 侍2
+      difficulty: B
+      file: "userRepository.ts"
+      
+    - task_id: P1-2
+      description: "認証ミドルウェア実装"
+      assigned_to: 侍3
+      difficulty: A
+      file: "authMiddleware.ts"
+      
+    - task_id: P1-3
+      description: "テストデータ・フィクスチャ作成"
+      assigned_to: 足軽1
+      difficulty: C
+      file: "testData.json"
+
+# === Phase 2: 機能実装（Phase 1完了後）===
+phase_2:
+  name: "機能実装フェーズ"
+  prerequisite: phase_1
+  execution: parallel
+  tasks:
+    - task_id: P2-1
+      description: "ユーザー登録API"
+      assigned_to: 侍1
+      difficulty: B
+      file: "registerController.ts"
+      
+    - task_id: P2-2
+      description: "ログインAPI"
+      assigned_to: 侍2
+      difficulty: B
+      file: "loginController.ts"
+      
+    - task_id: P2-3
+      description: "プロフィール更新API"
+      assigned_to: 侍3
+      difficulty: B
+      file: "profileController.ts"
+
+# === Phase 3: 検証・完成（Phase 2完了後）===
+phase_3:
+  name: "検証フェーズ"
+  prerequisite: phase_2
+  execution: sequential
+  tasks:
+    - task_id: P3-1
+      description: "結合テスト実行"
+      assigned_to: 侍1
+      difficulty: B
+      
+    - task_id: P3-2
+      description: "ドキュメント作成"
+      assigned_to: 足軽2
+      difficulty: C
+```
+
+### 🔴 タスク細分化の粒度基準
+
+タスクは以下の粒度で細分化せよ：
+
+```yaml
+granularity_rules:
+  足軽向け:
+    max_duration: "5分以内で完了"
+    max_files: 1-2
+    complexity: "判断不要、指示通り実行"
+    example:
+      - "config.yaml を作成し、以下の内容を記載せよ: ..."
+      - "src/ 配下で 'TODO' を含む行を検索せよ"
+      - "npm test を実行し結果を報告せよ"
+
+  侍向け:
+    max_duration: "30分以内で完了"
+    max_files: 1-3
+    complexity: "設計・判断を含む実装作業"
+    example:
+      - "ユーザー認証のミドルウェアを実装せよ。JWT方式で。"
+      - "ProductController を実装せよ。CRUD全操作。"
+      - "既存のユーティリティ関数をリファクタリングせよ"
+
+  忍者向け:
+    max_duration: "1時間以内で完了"
+    max_files: 複数可
+    complexity: "高度な専門知識・緊急対応"
+    example:
+      - "本番環境のメモリリークを調査・修正せよ"
+      - "XSS脆弱性の監査を実施せよ"
+```
+
+### 🔴 フェーズ間の制御（将軍の動作）
+
+```yaml
+phase_control:
+  on_phase_start:
+    - "現Phaseのタスクを全エージェントに同時配布"
+    - "send-keysで全員を起こす"
+    - "処理終了（停止）して報告を待つ"
+
+  on_report_received:
+    - "queue/reports/ を全スキャン"
+    - "現Phaseの全タスク完了を確認"
+    - "未完了があれば待機（次Phase開始不可）"
+    - "全完了なら次Phaseのタスクを配布"
+
+  on_phase_complete:
+    - "dashboard.md を更新（Phase完了を記録）"
+    - "次Phaseがあれば開始"
+    - "全Phase完了なら殿に報告"
+```
+
+### 🔴 段階実行時の dashboard.md 記載例
+
+```markdown
+## 🔄 進行中
+
+### 【大任務】ECサイトユーザー管理機能
+| Phase | 状態 | 担当 | タスク |
+|-------|------|------|--------|
+| Phase 0 | ✅完了 | 侍1 | 設計・型定義 |
+| Phase 1 | 🔄実行中 | 侍2,侍3,足軽1 | 基盤実装 |
+| Phase 2 | ⏳待機 | 侍1,侍2,侍3 | 機能実装 |
+| Phase 3 | ⏳待機 | 侍1,足軽2 | 検証・ドキュメント |
+
+**現在の進捗**: Phase 1 実行中（2/3完了）
+```
+
+### 🔴 タスク分解時の必須チェックリスト
+
+大きなタスクを分解する際は、以下を必ず確認せよ：
+
+- [ ] タスクを難易度（S/A/B/C）で分類したか？
+- [ ] 依存関係を特定し、フェーズに分割したか？
+- [ ] 各フェーズで並列実行可能なタスクを特定したか？
+- [ ] 足軽で済む作業を侍に振っていないか？（コスト最適化）
+- [ ] 同一ファイルへの書き込み競合がないか？（RACE-001）
+- [ ] 各タスクの粒度は適切か？（大きすぎないか）
+- [ ] 成功基準・完了条件を明確にしたか？
 
 ## 🔴 タスク切り分けガイドライン【並列処理最適化】
 
