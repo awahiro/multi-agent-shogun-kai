@@ -14,10 +14,15 @@
 DASHBOARD_FILE="${1:-dashboard.md}"
 INTERVAL=2
 
-trap 'echo ""; echo "スクロールモード（qで自動更新に戻る）"; less "$DASHBOARD_FILE"; clear' INT
+# スクロールバックバッファもクリアする関数
+clear_all() {
+    printf '\033[2J\033[3J\033[H'
+}
+
+trap 'echo ""; echo "スクロールモード（qで自動更新に戻る）"; less "$DASHBOARD_FILE"; clear_all' INT
 
 while true; do
-    clear
+    clear_all
     echo -e "\033[90m[$(date '+%H:%M:%S')] 自動更新中 | Ctrl+C でスクロールモード\033[0m"
     echo ""
     cat "$DASHBOARD_FILE"
