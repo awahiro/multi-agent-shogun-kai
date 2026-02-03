@@ -11,7 +11,8 @@ test_output/
 skills/
 
 # Projects (local development)
-projects/
+projects/*
+!projects/.gitkeep
 
 # Temporary files
 *.tmp
@@ -41,3 +42,4 @@ config/projects.yaml
 status/
 config/settings.yaml
 logs/
+
