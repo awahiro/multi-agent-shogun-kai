@@ -1,0 +1,44 @@
+# 報告テンプレート（差分ベース・トークン節約版）
+# 使用法: このテンプレートをコピーして報告ファイルに貼り付け
+
+# === 必須フィールド（常に記入）===
+worker_id: ""           # samurai1, ashigaru2, ninja 等
+task_id: ""             # タスクID
+timestamp: ""           # date "+%Y-%m-%dT%H:%M:%S" で取得
+status: ""              # completed / in_progress / error / blocked
+
+# === 結果サマリ（1-2行で簡潔に）===
+result:
+  summary: ""           # 何をしたか1行で
+  # 詳細は不要。成果物を見れば分かる。
+
+# === 差分報告（変更のみ記載）===
+changes:
+  files_created:        # 作成したファイル
+    - path: ""
+      lines: 0          # 行数（大きさの目安）
+  files_modified:       # 変更したファイル
+    - path: ""
+      diff_lines: 0     # 変更行数
+      section: ""       # 変更箇所（関数名等）
+  files_deleted: []     # 削除したファイル
+  commands_run: []      # 実行したコマンド（テスト等）
+
+# === 品質指標（オプション）===
+quality:
+  tests_passed: null    # テスト通過数
+  tests_failed: null    # テスト失敗数
+  errors_found: null    # エラー数
+
+# === スキル化候補 ===
+skill_candidate: false  # true = この作業はスキル化すべき
+skill_reason: ""        # なぜスキル化すべきか
+
+# === 問題・ブロッカー（あれば）===
+issues: []              # 問題があれば記載
+# - issue: "問題内容"
+#   severity: high/medium/low
+#   suggestion: "提案"
+
+# === 次のアクション（提案）===
+next_action: ""         # 次に何をすべきか（提案のみ）

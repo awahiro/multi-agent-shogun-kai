@@ -1,0 +1,21 @@
+# 最小報告テンプレート（差分ベース・高速版）
+# 通常の報告はこれを使用。詳細が必要な場合のみ report_template.yaml を使用
+
+# === 必須3フィールドのみ ===
+worker_id: ""       # samurai1, ashigaru2, ninja 等
+task_id: ""         # タスクID
+status: ""          # completed / error / blocked
+
+# === 結果（1行）===
+summary: ""         # 何をしたか1行で
+
+# === 差分のみ（変更があれば）===
+created: []         # 作成ファイル（例: ["src/api.py", "tests/test_api.py"]）
+modified: []        # 変更ファイル（例: ["config.yaml"]）
+
+# === 問題（あれば）===
+issue: ""           # 問題があれば1行で
+
+# === スキル化（該当すれば）===
+skill_candidate: false
+
