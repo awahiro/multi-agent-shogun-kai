@@ -766,7 +766,7 @@ claude --dangerously-skip-permissions --system-prompt "..."
 | `./attach.sh` | 全軍に接続 |
 | `Ctrl+B` → 矢印キー | ペイン間を切り替え |
 | `Ctrl+B` の後 `d` | デタッチ（実行継続） |
-| `tmux kill-session -t $(cat .session-name)` | セッションを停止 |
+| `./shutdown.sh` | セッションを停止 |
 
 ---
 

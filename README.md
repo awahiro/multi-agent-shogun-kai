@@ -751,7 +751,7 @@ Check the worker's pane:
 | `./attach.sh` | Connect to session |
 | `Ctrl+B` then `0-6` | Switch between panes |
 | `Ctrl+B` then `d` | Detach (leave running) |
-| `tmux kill-session -t $(cat .session-name)` | Stop session |
+| `./shutdown.sh` | Stop session |
 
 Pane layout: 0=Shogun, 1-3=Samurai, 4-5=Ashigaru, 6=Ninja
 
