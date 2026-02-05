@@ -120,6 +120,24 @@ cd /mnt/c/tools/multi-agent-shogun
 
 </td>
 </tr>
+<tr>
+<td>
+
+**Step 5**
+
+</td>
+<td>
+
+🔗 **Connect to the session!**
+
+Open a new terminal and run:
+
+```bash
+./attach.sh
+```
+
+</td>
+</tr>
 </table>
 
 #### 📅 Daily Startup (After First Install)
@@ -129,6 +147,12 @@ Open **Ubuntu terminal** (WSL) and run:
 ```bash
 cd /mnt/c/tools/multi-agent-shogun
 ./start.sh
+```
+
+Then open a new terminal and connect:
+
+```bash
+./attach.sh
 ```
 
 ---
@@ -155,6 +179,9 @@ chmod +x *.sh
 ```bash
 cd ~/multi-agent-shogun
 ./start.sh
+
+# Then open a new terminal and connect:
+./attach.sh
 ```
 
 </details>
@@ -194,6 +221,7 @@ Then restart your computer and run `install.bat` again.
 | `install.bat` | Windows: WSL2 + Ubuntu setup | First time only |
 | `first_setup.sh` | Installs tmux, Node.js, Claude Code CLI + configures Memory MCP | First time only |
 | `start.sh` | Creates tmux sessions + starts Claude Code + loads instructions | Every day |
+| `attach.sh` | Connects to the running tmux session | Every day (after start.sh) |
 
 ### What `install.bat` does automatically:
 - ✅ Checks if WSL2 is installed (auto-install if missing)
@@ -251,10 +279,10 @@ You'll see tmux session created:
 
 After running `start.sh`, all agents automatically load their instructions and are ready to work.
 
-Open a new terminal and connect to the Shogun:
+Open a new terminal and connect:
 
 ```bash
-tmux attach-session -t $(cat .session-name)
+./attach.sh
 ```
 
 ### Step 2: Give Your First Order
@@ -606,7 +634,7 @@ language: en   # Japanese + English translation
 **Normal Daily Usage:**
 ```bash
 ./start.sh          # Start everything
-tmux attach-session -t $(cat .session-name)     # Connect to give commands
+./attach.sh         # Connect to give commands
 ```
 
 **Debug Mode (manual control):**
@@ -648,7 +676,8 @@ multi-agent-shogun/
 │  ┌─────────────────── SETUP SCRIPTS ───────────────────┐
 ├── install.bat               # Windows: First-time setup
 ├── first_setup.sh            # Ubuntu/Mac: First-time setup
-├── start.sh    # Daily startup (auto-loads instructions)
+├── start.sh                 # Daily startup (auto-loads instructions)
+├── attach.sh                # Connect to running session
 │  └────────────────────────────────────────────────────┘
 │
 ├── instructions/             # Agent instruction files
@@ -707,8 +736,8 @@ claude --dangerously-skip-permissions --system-prompt "..."
 
 Check the worker's pane:
 ```bash
-tmux attach-session -t $(cat .session-name)
-# Use Ctrl+B then number to switch panes (0=Shogun, 1-3=Samurai, 4-5=Ashigaru, 6=Ninja)
+./attach.sh
+# Use Ctrl+B then arrow keys to switch panes
 ```
 
 </details>
@@ -719,7 +748,7 @@ tmux attach-session -t $(cat .session-name)
 
 | Command | Description |
 |---------|-------------|
-| `tmux attach -t $(cat .session-name)` | Connect to session |
+| `./attach.sh` | Connect to session |
 | `Ctrl+B` then `0-6` | Switch between panes |
 | `Ctrl+B` then `d` | Detach (leave running) |
 | `tmux kill-session -t $(cat .session-name)` | Stop session |
