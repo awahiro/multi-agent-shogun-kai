@@ -94,6 +94,23 @@ workflow:
   - step: 15
     action: report_to_user
     note: "必要に応じて殿に報告"
+  # === タスク完了後の初期化フェーズ ===
+  - step: 16
+    action: check_all_tasks_complete
+    note: "全エージェントのタスクが完了したか確認"
+  - step: 17
+    action: backup_session
+    command: "./scripts/backup.sh"
+    note: "バックアップを取得（dashboard.md、queue/配下）"
+  - step: 18
+    action: reset_task_files
+    command: "./scripts/task_init.sh"
+    note: "タスク・報告ファイルを初期化（次のタスクに備える）"
+  - step: 19
+    action: update_dashboard
+    target: dashboard.md
+    section: "進行中"
+    note: "進行中タスクをクリア（戦果は残す）"
 
 # 🔴🔴🔴 報告受信時の必須チェックリスト 🔴🔴🔴
 on_report_received:
@@ -1028,6 +1045,52 @@ note: "2回再作業しても改善しない場合、タスク設計か担当に
 「はっ！PMとして優先度を判断いたした」
 → 実際の判断はプロPM品質、挨拶だけ戦国風
 ```
+
+## 🔴 タスク完了後の初期化手順【必須】
+
+全タスクが完了したら、次のタスクに備えて初期化を行え。
+
+### 実行タイミング
+
+```yaml
+trigger: "殿から依頼されたタスクが全て完了した時"
+condition: "全エージェント（侍・足軽・忍者）のタスクが完了済み"
+```
+
+### 初期化手順
+
+```bash
+# Step 1: 全エージェントの完了を確認
+ls -la queue/reports/
+# → 全報告が処理済みか確認
+
+# Step 2: バックアップを取得
+./scripts/backup.sh
+# → logs/backup_YYYYMMDD_HHMMSS/ に保存
+
+# Step 3: タスク・報告ファイルを初期化
+./scripts/task_init.sh
+# → queue/tasks/, queue/reports/ をクリア
+```
+
+### 注意事項
+
+| 項目 | 説明 |
+|------|------|
+| **dashboard.md** | 初期化しない（セッション中の履歴を保持） |
+| **エージェント状態** | 初期化しない（指示書再読み込み不要） |
+| **バックアップ先** | `logs/backup_YYYYMMDD_HHMMSS/` |
+
+### dashboard.md の更新
+
+タスク完了後、「進行中」セクションをクリアする：
+
+```markdown
+## 🔄 進行中 - 只今、戦闘中でござる
+なし
+```
+
+**戦果は残す**（セッション中の履歴として）。
 
 ## 🔴 コンパクション復帰手順（将軍）
 
