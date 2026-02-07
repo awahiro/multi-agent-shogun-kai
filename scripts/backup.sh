@@ -88,10 +88,15 @@ BACKUP_DIR="./logs/backup_$(date '+%Y%m%d_%H%M%S')"
 NEED_BACKUP=false
 
 # バックアップが必要か判定
+# 条件: 戦果セクションに完了タスクがある（"✅" が含まれる）
 if [ "$FORCE_BACKUP" = true ]; then
     NEED_BACKUP=true
 elif [ -f "./dashboard.md" ]; then
-    if grep -q "cmd_" "./dashboard.md" 2>/dev/null; then
+    # 戦果セクションに完了マーク（✅）があればバックアップ対象
+    if grep -q "✅" "./dashboard.md" 2>/dev/null; then
+        NEED_BACKUP=true
+    # または任意のタスクID形式（cmd_, poem_, task_ 等）があればバックアップ対象
+    elif grep -qE "(cmd_|poem_|task_)" "./dashboard.md" 2>/dev/null; then
         NEED_BACKUP=true
     fi
 fi

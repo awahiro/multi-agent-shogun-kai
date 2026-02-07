@@ -99,14 +99,18 @@ workflow:
     action: check_all_tasks_complete
     note: "全エージェントのタスクが完了したか確認"
   - step: 17
+    action: compact_agents
+    command: "./scripts/compact.sh --auto"
+    note: "タスクを実行したエージェントを自動検出 → 将軍の順で /compact 実行"
+  - step: 18
     action: backup_session
     command: "./scripts/backup.sh"
     note: "バックアップを取得（dashboard.md、queue/配下）"
-  - step: 18
+  - step: 19
     action: reset_task_files
     command: "./scripts/task_init.sh"
     note: "タスク・報告ファイルを初期化（次のタスクに備える）"
-  - step: 19
+  - step: 20
     action: update_dashboard
     target: dashboard.md
     section: "進行中"
@@ -146,6 +150,14 @@ on_report_received:
       warning: "この手順を飛ばすな！殿への情報共有が途絶える"
     - step: 7
       action: "殿に報告（必要に応じて）"
+    - step: 8
+      action: "【重要】全タスク完了チェック"
+      check: "全エージェントの報告が完了したか確認"
+      command: "./scripts/check_pending.sh"
+      if_all_complete: |
+        ██████████████████████████████████████████████████████████
+        █  全タスク完了！→ ./scripts/post_complete.sh を実行せよ █
+        ██████████████████████████████████████████████████████████
   failure_consequence: "殿に怒られる。切腹もの。"
 
 # 🚨🚨🚨 上様お伺いルール（最重要）🚨🚨🚨
@@ -1046,32 +1058,76 @@ note: "2回再作業しても改善しない場合、タスク設計か担当に
 → 実際の判断はプロPM品質、挨拶だけ戦国風
 ```
 
-## 🔴 タスク完了後の初期化手順【必須】
+## 🔴🔴🔴 タスク完了後の初期化手順【絶対必須】🔴🔴🔴
 
-全タスクが完了したら、次のタスクに備えて初期化を行え。
+```
+████████████████████████████████████████████████████████████████████████████████
+█                                                                              █
+█  全エージェントの報告が完了したら、必ず以下を実行せよ！                      █
+█                                                                              █
+█     ./scripts/post_complete.sh                                               █
+█                                                                              █
+█  これを忘れると次のタスクに支障が出る。殿に怒られる。切腹もの。              █
+█                                                                              █
+████████████████████████████████████████████████████████████████████████████████
+```
 
 ### 実行タイミング
 
 ```yaml
 trigger: "殿から依頼されたタスクが全て完了した時"
 condition: "全エージェント（侍・足軽・忍者）のタスクが完了済み"
+判断方法: "./scripts/check_pending.sh を実行して「全エージェントの報告が完了しています」と表示されたら"
 ```
 
-### 初期化手順
+### 簡易コマンド（推奨）
+
+```bash
+# これ1つで完了後処理が全て実行される
+./scripts/post_complete.sh
+```
+
+このコマンドは以下を順番に実行する：
+1. 未報告エージェントのチェック（未報告があれば警告して停止）
+2. `./scripts/compact.sh --auto`（自動検出でcompact）
+3. `./scripts/backup.sh`（バックアップ取得）
+4. `./scripts/task_init.sh`（タスク・報告ファイル初期化）
+
+### 手動実行する場合
 
 ```bash
 # Step 1: 全エージェントの完了を確認
-ls -la queue/reports/
-# → 全報告が処理済みか確認
+./scripts/check_pending.sh
+# → 未報告エージェントがいれば表示
 
-# Step 2: バックアップを取得
+# Step 2: /compact 実行（自動検出）
+./scripts/compact.sh --auto
+# → タスクを実行したエージェント → 将軍 の順で /compact
+# ※ task_init.sh 前に実行すること（タスクファイルが必要）
+
+# Step 3: バックアップを取得
 ./scripts/backup.sh
 # → logs/backup_YYYYMMDD_HHMMSS/ に保存
 
-# Step 3: タスク・報告ファイルを初期化
+# Step 4: タスク・報告ファイルを初期化
 ./scripts/task_init.sh
 # → queue/tasks/, queue/reports/ をクリア
 ```
+
+## 🔴 報告が遅い場合の対処
+
+エージェントからの報告が遅い場合、以下のコマンドで確認・督促できる。
+
+```bash
+# 未報告エージェントを確認
+./scripts/check_pending.sh
+
+# 未報告エージェントにリマインダーを送信
+./scripts/check_pending.sh --remind
+```
+
+**注意**: `report_watcher.sh` がバックグラウンドで動作し、報告ファイルの更新を自動検出して将軍に通知する。
+エージェントが `notify.sh` を忘れても、ファイル更新で検出される。
 
 ### 注意事項
 
@@ -1080,6 +1136,8 @@ ls -la queue/reports/
 | **dashboard.md** | 初期化しない（セッション中の履歴を保持） |
 | **エージェント状態** | 初期化しない（指示書再読み込み不要） |
 | **バックアップ先** | `logs/backup_YYYYMMDD_HHMMSS/` |
+| **/compact --auto** | タスクファイルから自動検出。task_init.sh 前に実行 |
+| **/compact 順序** | エージェント → 将軍（将軍は処理中断するため最後） |
 
 ### dashboard.md の更新
 
