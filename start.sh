@@ -339,7 +339,7 @@ fi
 log_war "🏯 全軍の陣を構築中（将軍 + 実働部隊6名）..."
 
 # セッション作成
-if ! tmux new-session -d -s $SESSION_NAME -n "battlefield" 2>/dev/null; then
+if ! tmux new-session -d -s $SESSION_NAME -n "battlefield" -x 200 -y 50 2>/dev/null; then
     echo ""
     echo "  ╔════════════════════════════════════════════════════════════╗"
     echo "  ║  [ERROR] Failed to create tmux session                   ║"
@@ -370,18 +370,18 @@ tmux set-option -g pane-border-format '#{pane_index}: #{?#{==:#{pane_index},0},d
 # +------------+------------+----------+----------+----------+
 
 # Step 1: 5列均等に分割（各20%）
-tmux split-window -h -t "${SESSION_NAME}:0" -p 80    # dash 20% | 残り 80%
-tmux split-window -h -t "${SESSION_NAME}:0.1" -p 75  # 将軍 20% | 残り 60%
-tmux split-window -h -t "${SESSION_NAME}:0.2" -p 67  # 列3 20% | 残り 40%
-tmux split-window -h -t "${SESSION_NAME}:0.3" -p 50  # 列4 20% | 列5 20%
+tmux split-window -h -t "${SESSION_NAME}:0" -l 80%    # dash 20% | 残り 80%
+tmux split-window -h -t "${SESSION_NAME}:0.1" -l 75%  # 将軍 20% | 残り 60%
+tmux split-window -h -t "${SESSION_NAME}:0.2" -l 67%  # 列3 20% | 残り 40%
+tmux split-window -h -t "${SESSION_NAME}:0.3" -l 50%  # 列4 20% | 列5 20%
 # 現在: 0=dashboard, 1=将軍, 2=列3, 3=列4, 4=列5
 
 # Step 2: 右3列（pane 2,3,4）を上下分割
-tmux split-window -v -t "${SESSION_NAME}:0.2" -p 50  # 列3 → 侍1(2) | 足軽1(3)
+tmux split-window -v -t "${SESSION_NAME}:0.2" -l 50%  # 列3 → 侍1(2) | 足軽1(3)
 # 現在: 0=dashboard, 1=将軍, 2=侍1, 3=足軽1, 4=列4, 5=列5
-tmux split-window -v -t "${SESSION_NAME}:0.4" -p 50  # 列4 → 侍2(4) | 足軽2(5)
+tmux split-window -v -t "${SESSION_NAME}:0.4" -l 50%  # 列4 → 侍2(4) | 足軽2(5)
 # 現在: 0=dashboard, 1=将軍, 2=侍1, 3=足軽1, 4=侍2, 5=足軽2, 6=列5
-tmux split-window -v -t "${SESSION_NAME}:0.6" -p 50  # 列5 → 侍3(6) | 忍者(7)
+tmux split-window -v -t "${SESSION_NAME}:0.6" -l 50%  # 列5 → 侍3(6) | 忍者(7)
 # 最終: 0=dashboard, 1=将軍, 2=侍1, 3=足軽1, 4=侍2, 5=足軽2, 6=侍3, 7=忍者
 
 # ペインタイトルと環境変数設定（8ペイン体制）
